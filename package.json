@@ -1,0 +1,7 @@
+{
+  "gypfile": true,
+  "main": "lib/zopflipng.js",
+  "dependencies": {
+    "node-addon-api": "^3.1.0"
+  }
+}
