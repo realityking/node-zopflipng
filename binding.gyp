@@ -24,21 +24,38 @@
       'dependencies': [
         "<!(node -p \"require('node-addon-api').gyp\")"
       ],
-      'cflags!': [ '-fno-exceptions' ],
-      'cflags_cc!': [ '-fno-exceptions' ],
+      'cflags!': [
+        '-fno-exceptions',
+        '-Wextra',
+        '-Wall',
+        '-O3',
+      ],
+      'cflags_cc!': [
+        '-fno-exceptions',
+        '-Wextra',
+        '-Wall',
+        '-O3',
+      ],
       'xcode_settings': {
         'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
         'CLANG_CXX_LIBRARY': 'libc++',
-        'MACOSX_DEPLOYMENT_TARGET': '10.7'
+        'MACOSX_DEPLOYMENT_TARGET': '10.7',
+        'OTHER_CFLAGS': [
+          '-fno-exceptions',
+          '-Wextra',
+          '-Wall',
+          '-O3',
+        ],
+        'OTHER_CPLUSPLUSFLAGS': [
+          '-fno-exceptions',
+          '-Wextra',
+          '-Wall',
+          '-O3',
+        ]
       },
       'msvs_settings': {
         'VCCLCompilerTool': { 'ExceptionHandling': 1 },
       },
-      "cflags": [
-        "-Wextra",
-        "-Wall",
-        "-O3"
-      ],
       "defines": [
         "NAPI_DISABLE_CPP_EXCEPTIONS",
         "NAPI_VERSION=3"
