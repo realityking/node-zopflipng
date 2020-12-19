@@ -122,6 +122,11 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
     outputPng = inputPng;
   }
 
+  // If the output is larger (or equal) to the input, preseve it
+  if (outputPng.size() >= inputPng.size()) {
+    outputPng = inputPng;
+  }
+
   outputSize = outputPng.size();
   outputData = (unsigned char*) malloc(outputSize);
   if (!outputData) {

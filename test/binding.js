@@ -25,3 +25,10 @@ test('skip optimizing a non-PNG file', async t => {
 
 	t.deepEqual(data, buf);
 });
+
+test('skip optimizing an already optimized PNG', async t => {
+  const buf = await readFile(path.join(__dirname, 'fixtures/test-smallest.png'));
+  const data = zopflipng(buf);
+
+  t.deepEqual(data, buf);
+});
