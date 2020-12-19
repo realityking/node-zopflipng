@@ -29,12 +29,16 @@
         '-Wextra',
         '-Wall',
         '-Wno-unused-function',
+        '-ansi',
+        '-pedantic',
         '-O3',
       ],
       'cflags_cc!': [
         '-fno-exceptions',
         '-Wextra',
         '-Wall',
+        '-std=c++11',
+        '-pedantic',
         '-O3',
       ],
       'xcode_settings': {
@@ -46,12 +50,16 @@
           '-Wextra',
           '-Wall',
           '-Wno-unused-function',
+          '-ansi',
+          '-pedantic',
           '-O3',
         ],
         'OTHER_CPLUSPLUSFLAGS': [
           '-fno-exceptions',
           '-Wextra',
           '-Wall',
+          '-std=c++11',
+          '-pedantic',
           '-O3',
         ]
       },
