@@ -19,11 +19,14 @@ test('sync: optimize a PNG', async t => {
 	t.true(isPng(data));
 });
 
-test('sync: skip optimizing a non-PNG file', async t => {
+test('sync: throws error on non-PNG file', async t => {
 	const buf = await readFile(__filename);
-	const data = optimizeZopfliPngSync(buf);
-
-	t.deepEqual(data, buf);
+  t.throws(() => {
+		optimizeZopfliPngSync(buf);
+	}, {
+    instanceOf: Error,
+    message: 'input must be a valid PNG'
+  });
 });
 
 test('sync: skip optimizing an already optimized PNG', async t => {
@@ -41,11 +44,12 @@ test('async: optimize a PNG', async t => {
   t.true(isPng(data));
 });
 
-test('async: skip optimizing a non-PNG file', async t => {
+test('async: throws error on non-PNG file', async t => {
   const buf = await readFile(__filename);
-  const data = await optimizeZopfliPng(buf);
-
-  t.deepEqual(data, buf);
+  const data = await t.throwsAsync(optimizeZopfliPng(buf), {
+    instanceOf: Error,
+    message: 'input must be a valid PNG'
+  });
 });
 
 test('async: skip optimizing an already optimized PNG', async t => {
