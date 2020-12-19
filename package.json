@@ -1,7 +1,32 @@
 {
+  "name": "node-zopflipng",
+  "version": "0.0.1",
+  "description": "Native module for zopflipng",
+  "keywords": [
+    "png",
+    "zopfli",
+    "zopflipng",
+    "compress",
+    "image",
+    "node-addon-api"
+  ],
+  "author": {
+    "name": "Rouven Wessling",
+    "email": "me@rouvenwessling.de",
+    "url": "github.com/realityking"
+  },
   "license": "(MIT AND Apache-2.0 AND Zlib)",
   "gypfile": true,
   "main": "lib/zopflipng.js",
+  "exports": {
+    ".": "lib/zopflipng.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "lib",
+    "binding.gyp"
+  ],
   "dependencies": {
     "node-addon-api": "^3.1.0"
   }
