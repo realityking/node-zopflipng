@@ -10,16 +10,15 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   Napi::Value option_value;
   const Napi::Env env = options.Env();
 
-  if(options.IsEmpty()) {
+  if (options.IsEmpty()) {
     return;
   }
 
   // Allow altering hidden colors of fully transparent pixels
   if (options.Has("lossyTransparent")) {
     option_value = options.Get("lossyTransparent");
-    if(!option_value.IsBoolean()) {
+    if (!option_value.IsBoolean()) {
       Napi::TypeError::New(env, "Wrong type for option 'lossyTransparent'").ThrowAsJavaScriptException();
-
     }
     png_options.lossy_transparent = option_value.As<Napi::Boolean>().Value();
   }
@@ -27,16 +26,28 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   // Convert 16-bit per channel images to 8-bit per channel
   if (options.Has("lossy8bit")) {
     option_value = options.Get("lossy8bit");
-    if(!option_value.IsBoolean()) {
+    if (!option_value.IsBoolean()) {
       Napi::TypeError::New(env, "Wrong type for option 'lossy8bit'").ThrowAsJavaScriptException();
     }
     png_options.lossy_8bit = option_value.As<Napi::Boolean>().Value();
   }
 
   // Zopfli number of iterations
+  if (options.Has("more")) {
+    option_value = options.Get("more");
+    if (!option_value.IsBoolean()) {
+      Napi::TypeError::New(env, "Wrong type for option 'more'").ThrowAsJavaScriptException();
+    }
+    if (option_value.As<Napi::Boolean>().Value()) {
+      png_options.num_iterations *= 4;
+      png_options.num_iterations_large *= 4;
+    }
+  }
+
+  // Zopfli number of iterations
   if (options.Has("iterations")) {
     option_value = options.Get("iterations");
-    if(!option_value.IsNumber()) {
+    if (!option_value.IsNumber()) {
       Napi::TypeError::New(env, "Wrong type for option 'iterations'").ThrowAsJavaScriptException();
     }
     int num = option_value.As<Napi::Number>().Int32Value();
@@ -58,7 +69,7 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
   }
 
   ZopfliPNGOptions png_options;
-  if(info.Length() >= 2) {
+  if (info.Length() >= 2) {
     if (!info[1].IsObject()) {
       Napi::TypeError::New(env, "options must be an object").ThrowAsJavaScriptException();
     }

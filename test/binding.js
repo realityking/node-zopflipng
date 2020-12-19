@@ -29,6 +29,14 @@ test('sync: optimize a PNG with 0 iterations', async t => {
 	t.true(isPng(data));
 });
 
+test('sync: optimize a PNG with "more" option', async t => {
+	const buf = await readFile(path.join(__dirname, 'fixtures/test.png'));
+	const data = optimizeZopfliPngSync(buf, {more: true});
+
+	t.true(data.length < buf.length);
+	t.true(isPng(data));
+});
+
 test('sync: throws error on non-PNG file', async t => {
 	const buf = await readFile(__filename);
   t.throws(() => {
