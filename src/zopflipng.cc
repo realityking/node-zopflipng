@@ -5,6 +5,53 @@
 
 using namespace Napi;
 
+// Based on node-zopfli Pierre Inglebert. Licensed under MIT.
+void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
+  Napi::Value option_value;
+  const Napi::Env env = options.Env();
+
+  if(options.IsEmpty()) {
+    return;
+  }
+
+  // Allow altering hidden colors of fully transparent pixels
+  if (options.Has("lossyTransparent")) {
+    option_value = options.Get("lossyTransparent");
+    if(!option_value.IsBoolean()) {
+      Napi::TypeError::New(env, "Wrong type for option 'lossyTransparent'").ThrowAsJavaScriptException();
+
+    }
+    png_options.lossy_transparent = option_value.As<Napi::Boolean>().Value();
+  }
+
+  // Convert 16-bit per channel images to 8-bit per channel
+  if (options.Has("lossy8bit")) {
+    option_value = options.Get("lossy8bit");
+    if(!option_value.IsBoolean()) {
+      Napi::TypeError::New(env, "Wrong type for option 'lossy8bit'").ThrowAsJavaScriptException();
+    }
+    png_options.lossy_8bit = option_value.As<Napi::Boolean>().Value();
+  }
+
+  // Zopfli number of iterations
+  if (options.Has("iterations")) {
+    option_value = options.Get("iterations");
+    if(!option_value.IsNumber()) {
+      Napi::TypeError::New(env, "Wrong type for option 'iterations'").ThrowAsJavaScriptException();
+    }
+    png_options.num_iterations = option_value.As<Napi::Number>().Int32Value();
+  }
+
+  // Zopfli number of iterations on images > 200 KiB
+  if (options.Has("iterationsLarge")) {
+    option_value = options.Get("iterationsLarge");
+    if(!option_value.IsNumber()) {
+      Napi::TypeError::New(env, "Wrong type for option 'iterationsLarge'").ThrowAsJavaScriptException();
+    }
+    png_options.num_iterations_large = option_value.As<Napi::Number>().Int32Value();
+  }
+}
+
 Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
@@ -18,6 +65,7 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
       Napi::TypeError::New(env, "options much be an object").ThrowAsJavaScriptException();
     }
     Napi::Object options = info[1].ToObject();
+    parseOptions(options, png_options);
   }
 
   Napi::Buffer<unsigned char> inputBuffer = info[0].As<Napi::Buffer<unsigned char>>();
