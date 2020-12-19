@@ -71,15 +71,16 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
   Napi::Buffer<unsigned char> inputBuffer = info[0].As<Napi::Buffer<unsigned char>>();
   size_t inputBufferSize = inputBuffer.Length();
   const unsigned char * inputBufferData = inputBuffer.Data();
-  const std::vector<unsigned char> inputputPng(inputBufferData, inputBufferData + inputBufferSize);
+  const std::vector<unsigned char> inputPng(inputBufferData, inputBufferData + inputBufferSize);
 
   std::vector<unsigned char> outputPng;
   unsigned char* outputData = 0;
   size_t outputSize = 0;
 
   bool verbose = false;
+  int error = 0;
 
-  int error = ZopfliPNGOptimize(inputputPng, png_options, verbose, &outputPng);
+  error = ZopfliPNGOptimize(inputPng, png_options, verbose, &outputPng);
   if (error) {
     if (error == 1) {
       Napi::Error::New(env, "Decoding error").ThrowAsJavaScriptException();
@@ -88,6 +89,37 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
       errstr << "Decoding error " << error << ": " << lodepng_error_text(error);
       Napi::Error::New(env, errstr.str()).ThrowAsJavaScriptException();
     }
+  }
+
+  std::vector<unsigned char> image;
+  unsigned w, h;
+  error = lodepng::decode(image, w, h, outputPng);
+  if (!error) {
+    std::vector<unsigned char> origimage;
+    unsigned origw, origh;
+    lodepng::decode(origimage, origw, origh, inputPng);
+    if (origw != w || origh != h || origimage.size() != image.size()) {
+      error = 1;
+    } else {
+      for (size_t i = 0; i < image.size(); i += 4) {
+        bool same_alpha = image[i + 3] == origimage[i + 3];
+        bool same_rgb =
+            (png_options.lossy_transparent && image[i + 3] == 0) ||
+            (image[i + 0] == origimage[i + 0] &&
+             image[i + 1] == origimage[i + 1] &&
+             image[i + 2] == origimage[i + 2]);
+        if (!same_alpha || !same_rgb) {
+          error = 1;
+          break;
+        }
+      }
+    }
+  }
+  if (error) {
+    // Reset the error to 0 and set the output to the input PNG
+    // We'll just pretend we couldn't optimize this PNG
+    error = 0;
+    outputPng = inputPng;
   }
 
   outputSize = outputPng.size();
