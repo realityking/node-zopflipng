@@ -20,6 +20,8 @@
     "url": "github.com/realityking"
   },
   "scripts": {
+    "install": "node-gyp-build",
+    "prebuild": "prebuildify --napi",
     "test": "ava"
   },
   "license": "(MIT AND Apache-2.0 AND Zlib)",
@@ -32,13 +34,16 @@
   "files": [
     "src",
     "lib",
+    "prebuilds",
     "binding.gyp"
   ],
   "dependencies": {
     "is-png": "^2.0.0",
-    "node-addon-api": "^3.1.0"
+    "node-addon-api": "^3.1.0",
+    "node-gyp-build": "^4.2.3"
   },
   "devDependencies": {
-    "ava": "^3.14.0"
+    "ava": "^3.14.0",
+    "prebuildify": "^4.1.1"
   }
 }
