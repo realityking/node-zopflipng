@@ -140,11 +140,110 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
   return Napi::Buffer<unsigned char>::New(info.Env(), outputData, outputSize);
 }
 
+class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
+  public:
+    PngOptimizeAsyncWorker(Napi::Env &env, ZopfliPNGOptions &png_options, const std::vector<unsigned char> &inputPng)
+      : Napi::AsyncWorker(env), png_options(png_options), inputPng(inputPng), deferred(Napi::Promise::Deferred::New(env)), outputData(0), outputSize(0)
+    {}
+
+  ~PngOptimizeAsyncWorker() {};
+
+  // Executed inside the worker-thread.
+  // It is not safe to access JS engine data structure
+  // here, so everything we need for input and output
+  // should go on `this`.
+  void Execute() {
+    std::vector<unsigned char> outputPng;
+    bool verbose = false;
+    int error = 0;
+
+    error = ZopfliPNGOptimize(inputPng, png_options, verbose, &outputPng);
+    if (error) {
+      if (error == 1) {
+        SetError("Decoding error");
+      } else {
+        std::ostringstream errstr;
+        errstr << "Decoding error " << error << ": " << lodepng_error_text(error);
+        SetError(errstr.str());
+      }
+      return;
+    }
+
+    std::vector<unsigned char> image;
+    unsigned w, h;
+    error = lodepng::decode(image, w, h, outputPng);
+    if (!error) {
+      std::vector<unsigned char> origimage;
+      unsigned origw, origh;
+      lodepng::decode(origimage, origw, origh, inputPng);
+      if (origw != w || origh != h || origimage.size() != image.size()) {
+        error = 1;
+      } else {
+        for (size_t i = 0; i < image.size(); i += 4) {
+          bool same_alpha = image[i + 3] == origimage[i + 3];
+          bool same_rgb =
+              (png_options.lossy_transparent && image[i + 3] == 0) ||
+              (image[i + 0] == origimage[i + 0] &&
+               image[i + 1] == origimage[i + 1] &&
+               image[i + 2] == origimage[i + 2]);
+          if (!same_alpha || !same_rgb) {
+            error = 1;
+            break;
+          }
+        }
+      }
+    }
+    if (error) {
+      // Reset the error to 0 and set the output to the input PNG
+      // We'll just pretend we couldn't optimize this PNG
+      error = 0;
+      outputPng = inputPng;
+    }
+
+    // If the output is larger (or equal) to the input, preseve it
+    if (outputPng.size() >= inputPng.size()) {
+      outputPng = inputPng;
+    }
+
+    outputSize = outputPng.size();
+    outputData = (unsigned char*) malloc(outputSize);
+    if (!outputData) {
+      SetError("can't allocate memory for output png");
+      return;
+    }
+
+    memcpy(outputData,
+           reinterpret_cast<unsigned char*>(&outputPng[0]),
+           outputSize);
+  }
+
+  // Executed when the async work is complete
+  // this function will be run inside the main event loop
+  // so it is safe to use JS engine data again
+  void OnOK() {
+    Napi::Buffer<unsigned char> outputBuffer = Napi::Buffer<unsigned char>::New(Env(), outputData, outputSize);
+    deferred.Resolve(outputBuffer);
+  }
+
+  void OnError(Napi::Error const &error) {
+    deferred.Reject(error.Value());
+  }
+
+  Napi::Promise GetPromise() { return deferred.Promise(); }
+
+  private:
+    ZopfliPNGOptions png_options;
+    const std::vector<unsigned char> inputPng;
+    Napi::Promise::Deferred deferred;
+    unsigned char* outputData = 0;
+    size_t outputSize = 0;
+};
+
 Napi::Promise OptimzeZopfliPNG(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  auto deferred = Napi::Promise::Deferred::New(env);
 
   if (info.Length() < 1 || !info[0].IsBuffer()) {
+    auto deferred = Napi::Promise::Deferred::New(env);
     deferred.Reject(Napi::TypeError::New(env, "input must be a buffer").Value());
     return deferred.Promise();
   }
@@ -152,6 +251,7 @@ Napi::Promise OptimzeZopfliPNG(const Napi::CallbackInfo& info) {
   ZopfliPNGOptions png_options;
   if(info.Length() >= 2) {
     if (!info[1].IsObject()) {
+      auto deferred = Napi::Promise::Deferred::New(env);
       deferred.Reject(Napi::TypeError::New(env, "options must be an object").Value());
       return deferred.Promise();
     }
@@ -164,76 +264,11 @@ Napi::Promise OptimzeZopfliPNG(const Napi::CallbackInfo& info) {
   const unsigned char * inputBufferData = inputBuffer.Data();
   const std::vector<unsigned char> inputPng(inputBufferData, inputBufferData + inputBufferSize);
 
-  std::vector<unsigned char> outputPng;
-  unsigned char* outputData = 0;
-  size_t outputSize = 0;
+  PngOptimizeAsyncWorker *worker = new PngOptimizeAsyncWorker(env, png_options, inputPng);
 
-  bool verbose = false;
-
-  int error = ZopfliPNGOptimize(inputPng, png_options, verbose, &outputPng);
-  if (error) {
-    if (error == 1) {
-      deferred.Reject(Napi::Error::New(env, "Decoding error").Value());
-    } else {
-      std::ostringstream errstr;
-      errstr << "Decoding error " << error << ": " << lodepng_error_text(error);
-      deferred.Reject(Napi::Error::New(env, errstr.str()).Value());
-    }
-    return deferred.Promise();
-  }
-
-  std::vector<unsigned char> image;
-  unsigned w, h;
-  error = lodepng::decode(image, w, h, outputPng);
-  if (!error) {
-    std::vector<unsigned char> origimage;
-    unsigned origw, origh;
-    lodepng::decode(origimage, origw, origh, inputPng);
-    if (origw != w || origh != h || origimage.size() != image.size()) {
-      error = 1;
-    } else {
-      for (size_t i = 0; i < image.size(); i += 4) {
-        bool same_alpha = image[i + 3] == origimage[i + 3];
-        bool same_rgb =
-            (png_options.lossy_transparent && image[i + 3] == 0) ||
-            (image[i + 0] == origimage[i + 0] &&
-             image[i + 1] == origimage[i + 1] &&
-             image[i + 2] == origimage[i + 2]);
-        if (!same_alpha || !same_rgb) {
-          error = 1;
-          break;
-        }
-      }
-    }
-  }
-  if (error) {
-    // Reset the error to 0 and set the output to the input PNG
-    // We'll just pretend we couldn't optimize this PNG
-    error = 0;
-    outputPng = inputPng;
-  }
-
-  // If the output is larger (or equal) to the input, preseve it
-  if (outputPng.size() >= inputPng.size()) {
-    outputPng = inputPng;
-  }
-
-  outputSize = outputPng.size();
-  outputData = (unsigned char*) malloc(outputSize);
-  if (!outputData) {
-    deferred.Reject(Napi::TypeError::New(env, "can't allocate memory for output png").Value());
-    return deferred.Promise();
-  }
-
-  memcpy(outputData,
-         reinterpret_cast<unsigned char*>(&outputPng[0]),
-         outputSize);
-
-  Napi::Buffer<unsigned char> outputBuffer = Napi::Buffer<unsigned char>::New(info.Env(), outputData, outputSize);
-
-  deferred.Resolve(outputBuffer);
-
-  return deferred.Promise();
+  auto promise = worker->GetPromise();
+  worker->Queue();
+  return promise;
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
