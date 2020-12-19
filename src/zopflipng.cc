@@ -39,7 +39,12 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
     if(!option_value.IsNumber()) {
       Napi::TypeError::New(env, "Wrong type for option 'iterations'").ThrowAsJavaScriptException();
     }
-    const int num = option_value.As<Napi::Number>().Int32Value();
+    int num = option_value.As<Napi::Number>().Int32Value();
+
+    // 0 iterations would mean no optimization
+    // This matches the behavior of the zopflipng CLI
+    if (num < 1) num = 1;
+
     png_options.num_iterations = num;
     png_options.num_iterations_large = num;
   }

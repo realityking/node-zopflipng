@@ -19,6 +19,16 @@ test('sync: optimize a PNG', async t => {
 	t.true(isPng(data));
 });
 
+test('sync: optimize a PNG with 0 iterations', async t => {
+	const buf = await readFile(path.join(__dirname, 'fixtures/test.png'));
+	const data = optimizeZopfliPngSync(buf, {iterations: 0});
+
+  // If zopflipng actually did 0 iterations, the file would be identical
+	// Internally we assure iterations >= 1 to avoid this trap
+	t.true(data.length < buf.length);
+	t.true(isPng(data));
+});
+
 test('sync: throws error on non-PNG file', async t => {
 	const buf = await readFile(__filename);
   t.throws(() => {
