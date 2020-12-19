@@ -34,6 +34,7 @@
         '-fno-exceptions',
         '-Wextra',
         '-Wall',
+        '-Wno-unused-function',
         '-O3',
       ],
       'xcode_settings': {
@@ -44,6 +45,7 @@
           '-fno-exceptions',
           '-Wextra',
           '-Wall',
+          '-Wno-unused-function',
           '-O3',
         ],
         'OTHER_CPLUSPLUSFLAGS': [
