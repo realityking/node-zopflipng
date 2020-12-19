@@ -15,6 +15,9 @@
     "email": "me@rouvenwessling.de",
     "url": "github.com/realityking"
   },
+  "scripts": {
+    "test": "ava"
+  },
   "license": "(MIT AND Apache-2.0 AND Zlib)",
   "gypfile": true,
   "main": "lib/zopflipng.js",
@@ -28,6 +31,10 @@
     "binding.gyp"
   ],
   "dependencies": {
+    "is-png": "^2.0.0",
     "node-addon-api": "^3.1.0"
+  },
+  "devDependencies": {
+    "ava": "^3.14.0"
   }
 }
