@@ -24,7 +24,7 @@
       'dependencies': [
         "<!(node -p \"require('node-addon-api').gyp\")"
       ],
-      'cflags!': [
+      'cflags': [
         '-fno-exceptions',
         '-Wextra',
         '-Wall',
@@ -33,14 +33,19 @@
         '-ansi',
         '-pedantic',
         '-O3',
+        '-flto',
       ],
-      'cflags_cc!': [
+      'cflags_cc': [
         '-fno-exceptions',
         '-Wextra',
         '-Wall',
         '-std=c++11',
         '-pedantic',
         '-O3',
+        '-flto',
+      ],
+      'ldflags': [
+        '-flto'
       ],
       'xcode_settings': {
         'GCC_ENABLE_CPP_EXCEPTIONS': 'NO',
@@ -55,6 +60,7 @@
           '-ansi',
           '-pedantic',
           '-O3',
+          '-flto'
         ],
         'OTHER_CPLUSPLUSFLAGS': [
           '-fno-exceptions',
@@ -63,6 +69,10 @@
           '-std=c++11',
           '-pedantic',
           '-O3',
+          '-flto'
+        ],
+        'OTHER_LDFLAGS': [
+          '-flto'
         ]
       },
       'msvs_settings': {
