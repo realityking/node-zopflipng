@@ -237,17 +237,13 @@ Napi::Promise OptimzeZopfliPNG(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
   if (info.Length() < 1 || !info[0].IsBuffer()) {
-    auto deferred = Napi::Promise::Deferred::New(env);
-    deferred.Reject(Napi::TypeError::New(env, "input must be a buffer").Value());
-    return deferred.Promise();
+    Napi::TypeError::New(env, "input must be a buffer").ThrowAsJavaScriptException();
   }
 
   ZopfliPNGOptions png_options;
-  if(info.Length() >= 2) {
+  if (info.Length() >= 2) {
     if (!info[1].IsObject()) {
-      auto deferred = Napi::Promise::Deferred::New(env);
-      deferred.Reject(Napi::TypeError::New(env, "options must be an object").Value());
-      return deferred.Promise();
+      Napi::TypeError::New(env, "options must be an object").ThrowAsJavaScriptException();
     }
     Napi::Object options = info[1].ToObject();
     parseOptions(options, png_options);
