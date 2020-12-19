@@ -1,4 +1,5 @@
 {
+  "license": "(MIT AND Apache-2.0 AND Zlib)",
   "gypfile": true,
   "main": "lib/zopflipng.js",
   "dependencies": {
