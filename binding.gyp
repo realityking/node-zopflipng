@@ -5,8 +5,8 @@
       'sources': [
         'src/zopflipng.cc',
         'src/zopflipng/zopflipng_lib.cc',
-        'src/zopflipng/lodepng/lodepng.cc',
-        'src/zopflipng/lodepng/lodepng_util.cc',
+        'src/lodepng/lodepng.cc',
+        'src/lodepng/lodepng_util.cc',
         "src/zopfli/deflate.c",
         "src/zopfli/util.c",
         "src/zopfli/blocksplitter.c",
@@ -18,8 +18,7 @@
         "src/zopfli/squeeze.c"
       ],
       'include_dirs': [
-        'src/zopfli',
-        'src/zopflipng',
+        'src',
         "<!@(node -p \"require('node-addon-api').include\")"
       ],
       'dependencies': [

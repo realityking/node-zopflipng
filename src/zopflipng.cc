@@ -1,6 +1,6 @@
 #include <sstream>
 #include <napi.h>
-#include "zopflipng/lodepng/lodepng.h"
+#include "lodepng/lodepng.h"
 #include "zopflipng/zopflipng_lib.h"
 
 using namespace Napi;
