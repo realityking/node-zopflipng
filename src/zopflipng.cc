@@ -61,6 +61,37 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   }
 }
 
+int check_png_encoding(const std::vector<unsigned char> inputPng, const std::vector<unsigned char> outputPng, ZopfliPNGOptions png_options) {
+  int error = 0;
+  std::vector<unsigned char> image;
+  unsigned w, h;
+
+  error = lodepng::decode(image, w, h, outputPng);
+  if (!error) {
+    std::vector<unsigned char> origimage;
+    unsigned origw, origh;
+    lodepng::decode(origimage, origw, origh, inputPng);
+    if (origw != w || origh != h || origimage.size() != image.size()) {
+      error = 1;
+    } else {
+      for (size_t i = 0; i < image.size(); i += 4) {
+        bool same_alpha = image[i + 3] == origimage[i + 3];
+        bool same_rgb =
+            (png_options.lossy_transparent && image[i + 3] == 0) ||
+            (image[i + 0] == origimage[i + 0] &&
+             image[i + 1] == origimage[i + 1] &&
+             image[i + 2] == origimage[i + 2]);
+        if (!same_alpha || !same_rgb) {
+          error = 1;
+          break;
+        }
+      }
+    }
+  }
+
+  return error;
+}
+
 Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
@@ -100,30 +131,7 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
     }
   }
 
-  std::vector<unsigned char> image;
-  unsigned w, h;
-  error = lodepng::decode(image, w, h, outputPng);
-  if (!error) {
-    std::vector<unsigned char> origimage;
-    unsigned origw, origh;
-    lodepng::decode(origimage, origw, origh, inputPng);
-    if (origw != w || origh != h || origimage.size() != image.size()) {
-      error = 1;
-    } else {
-      for (size_t i = 0; i < image.size(); i += 4) {
-        bool same_alpha = image[i + 3] == origimage[i + 3];
-        bool same_rgb =
-            (png_options.lossy_transparent && image[i + 3] == 0) ||
-            (image[i + 0] == origimage[i + 0] &&
-             image[i + 1] == origimage[i + 1] &&
-             image[i + 2] == origimage[i + 2]);
-        if (!same_alpha || !same_rgb) {
-          error = 1;
-          break;
-        }
-      }
-    }
-  }
+  error = check_png_encoding(inputPng, outputPng, png_options);
   if (error) {
     // Reset the error to 0 and set the output to the input PNG
     // We'll just pretend we couldn't optimize this PNG
@@ -178,30 +186,7 @@ class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
       return;
     }
 
-    std::vector<unsigned char> image;
-    unsigned w, h;
-    error = lodepng::decode(image, w, h, outputPng);
-    if (!error) {
-      std::vector<unsigned char> origimage;
-      unsigned origw, origh;
-      lodepng::decode(origimage, origw, origh, inputPng);
-      if (origw != w || origh != h || origimage.size() != image.size()) {
-        error = 1;
-      } else {
-        for (size_t i = 0; i < image.size(); i += 4) {
-          bool same_alpha = image[i + 3] == origimage[i + 3];
-          bool same_rgb =
-              (png_options.lossy_transparent && image[i + 3] == 0) ||
-              (image[i + 0] == origimage[i + 0] &&
-               image[i + 1] == origimage[i + 1] &&
-               image[i + 2] == origimage[i + 2]);
-          if (!same_alpha || !same_rgb) {
-            error = 1;
-            break;
-          }
-        }
-      }
-    }
+    error = check_png_encoding(inputPng, outputPng, png_options);
     if (error) {
       // Reset the error to 0 and set the output to the input PNG
       // We'll just pretend we couldn't optimize this PNG
