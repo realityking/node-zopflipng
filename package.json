@@ -2,6 +2,9 @@
   "name": "node-zopflipng",
   "version": "0.0.1",
   "description": "Native module for zopflipng",
+  "engines": {
+    "node": ">=10.13.0"
+  },
   "keywords": [
     "png",
     "zopfli",
