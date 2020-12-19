@@ -2,9 +2,29 @@
   'targets': [
     {
       'target_name': 'zopflipng',
-      'sources': [ 'src/zopflipng.cc' ],
-      'include_dirs': ["<!@(node -p \"require('node-addon-api').include\")"],
-      'dependencies': ["<!(node -p \"require('node-addon-api').gyp\")"],
+      'sources': [
+        'src/zopflipng.cc',
+        'src/zopflipng/zopflipng_lib.cc',
+        'src/zopflipng/lodepng/lodepng.cc',
+        'src/zopflipng/lodepng/lodepng_util.cc',
+        "src/zopfli/deflate.c",
+        "src/zopfli/util.c",
+        "src/zopfli/blocksplitter.c",
+        "src/zopfli/lz77.c",
+        "src/zopfli/hash.c",
+        "src/zopfli/tree.c",
+        "src/zopfli/katajainen.c",
+        "src/zopfli/cache.c",
+        "src/zopfli/squeeze.c"
+      ],
+      'include_dirs': [
+        'src/zopfli',
+        'src/zopflipng',
+        "<!@(node -p \"require('node-addon-api').include\")"
+      ],
+      'dependencies': [
+        "<!(node -p \"require('node-addon-api').gyp\")"
+      ],
       'cflags!': [ '-fno-exceptions' ],
       'cflags_cc!': [ '-fno-exceptions' ],
       'xcode_settings': {
@@ -14,7 +34,16 @@
       },
       'msvs_settings': {
         'VCCLCompilerTool': { 'ExceptionHandling': 1 },
-      }
+      },
+      "cflags": [
+        "-Wextra",
+        "-Wall",
+        "-O3"
+      ],
+      "defines": [
+        "NAPI_DISABLE_CPP_EXCEPTIONS",
+        "NAPI_VERSION=3"
+      ],
     }
   ]
 }
