@@ -62,7 +62,7 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
   ZopfliPNGOptions png_options;
   if(info.Length() >= 2) {
     if (!info[1].IsObject()) {
-      Napi::TypeError::New(env, "options much be an object").ThrowAsJavaScriptException();
+      Napi::TypeError::New(env, "options must be an object").ThrowAsJavaScriptException();
     }
     Napi::Object options = info[1].ToObject();
     parseOptions(options, png_options);
