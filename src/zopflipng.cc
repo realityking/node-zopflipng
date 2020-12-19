@@ -140,9 +140,108 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
   return Napi::Buffer<unsigned char>::New(info.Env(), outputData, outputSize);
 }
 
+Napi::Promise OptimzeZopfliPNG(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  auto deferred = Napi::Promise::Deferred::New(env);
+
+  if (info.Length() < 1 || !info[0].IsBuffer()) {
+    deferred.Reject(Napi::TypeError::New(env, "input must be a buffer").Value());
+    return deferred.Promise();
+  }
+
+  ZopfliPNGOptions png_options;
+  if(info.Length() >= 2) {
+    if (!info[1].IsObject()) {
+      deferred.Reject(Napi::TypeError::New(env, "options must be an object").Value());
+      return deferred.Promise();
+    }
+    Napi::Object options = info[1].ToObject();
+    parseOptions(options, png_options);
+  }
+
+  Napi::Buffer<unsigned char> inputBuffer = info[0].As<Napi::Buffer<unsigned char>>();
+  size_t inputBufferSize = inputBuffer.Length();
+  const unsigned char * inputBufferData = inputBuffer.Data();
+  const std::vector<unsigned char> inputPng(inputBufferData, inputBufferData + inputBufferSize);
+
+  std::vector<unsigned char> outputPng;
+  unsigned char* outputData = 0;
+  size_t outputSize = 0;
+
+  bool verbose = false;
+
+  int error = ZopfliPNGOptimize(inputPng, png_options, verbose, &outputPng);
+  if (error) {
+    if (error == 1) {
+      deferred.Reject(Napi::Error::New(env, "Decoding error").Value());
+    } else {
+      std::ostringstream errstr;
+      errstr << "Decoding error " << error << ": " << lodepng_error_text(error);
+      deferred.Reject(Napi::Error::New(env, errstr.str()).Value());
+    }
+    return deferred.Promise();
+  }
+
+  std::vector<unsigned char> image;
+  unsigned w, h;
+  error = lodepng::decode(image, w, h, outputPng);
+  if (!error) {
+    std::vector<unsigned char> origimage;
+    unsigned origw, origh;
+    lodepng::decode(origimage, origw, origh, inputPng);
+    if (origw != w || origh != h || origimage.size() != image.size()) {
+      error = 1;
+    } else {
+      for (size_t i = 0; i < image.size(); i += 4) {
+        bool same_alpha = image[i + 3] == origimage[i + 3];
+        bool same_rgb =
+            (png_options.lossy_transparent && image[i + 3] == 0) ||
+            (image[i + 0] == origimage[i + 0] &&
+             image[i + 1] == origimage[i + 1] &&
+             image[i + 2] == origimage[i + 2]);
+        if (!same_alpha || !same_rgb) {
+          error = 1;
+          break;
+        }
+      }
+    }
+  }
+  if (error) {
+    // Reset the error to 0 and set the output to the input PNG
+    // We'll just pretend we couldn't optimize this PNG
+    error = 0;
+    outputPng = inputPng;
+  }
+
+  // If the output is larger (or equal) to the input, preseve it
+  if (outputPng.size() >= inputPng.size()) {
+    outputPng = inputPng;
+  }
+
+  outputSize = outputPng.size();
+  outputData = (unsigned char*) malloc(outputSize);
+  if (!outputData) {
+    deferred.Reject(Napi::TypeError::New(env, "can't allocate memory for output png").Value());
+    return deferred.Promise();
+  }
+
+  memcpy(outputData,
+         reinterpret_cast<unsigned char*>(&outputPng[0]),
+         outputSize);
+
+  Napi::Buffer<unsigned char> outputBuffer = Napi::Buffer<unsigned char>::New(info.Env(), outputData, outputSize);
+
+  deferred.Resolve(outputBuffer);
+
+  return deferred.Promise();
+}
+
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "optimizeZopfliPngSync"),
               Napi::Function::New(env, OptimzeZopfliPNGSync));
+  exports.Set(Napi::String::New(env, "optimizeZopfliPng"),
+              Napi::Function::New(env, OptimzeZopfliPNG));
+
   return exports;
 }
 

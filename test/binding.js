@@ -7,28 +7,50 @@ const {promisify} = require('util');
 const test = require('ava');
 const isPng = require('is-png');
 
-const zopflipng = require('..');
+const {optimizeZopfliPng, optimizeZopfliPngSync} = require('..');
 
 const readFile = promisify(fs.readFile);
 
-test('optimize a PNG', async t => {
+test('sync: optimize a PNG', async t => {
 	const buf = await readFile(path.join(__dirname, 'fixtures/test.png'));
-	const data = zopflipng(buf);
+	const data = optimizeZopfliPngSync(buf);
 
 	t.true(data.length < buf.length);
 	t.true(isPng(data));
 });
 
-test('skip optimizing a non-PNG file', async t => {
+test('sync: skip optimizing a non-PNG file', async t => {
 	const buf = await readFile(__filename);
-	const data = zopflipng(buf);
+	const data = optimizeZopfliPngSync(buf);
 
 	t.deepEqual(data, buf);
 });
 
-test('skip optimizing an already optimized PNG', async t => {
+test('sync: skip optimizing an already optimized PNG', async t => {
+	const buf = await readFile(path.join(__dirname, 'fixtures/test-smallest.png'));
+	const data = optimizeZopfliPngSync(buf);
+
+	t.deepEqual(data, buf);
+});
+
+test('async: optimize a PNG', async t => {
+  const buf = await readFile(path.join(__dirname, 'fixtures/test.png'));
+  const data = await optimizeZopfliPng(buf);
+
+  t.true(data.length < buf.length);
+  t.true(isPng(data));
+});
+
+test('async: skip optimizing a non-PNG file', async t => {
+  const buf = await readFile(__filename);
+  const data = await optimizeZopfliPng(buf);
+
+  t.deepEqual(data, buf);
+});
+
+test('async: skip optimizing an already optimized PNG', async t => {
   const buf = await readFile(path.join(__dirname, 'fixtures/test-smallest.png'));
-  const data = zopflipng(buf);
+  const data = await optimizeZopfliPng(buf);
 
   t.deepEqual(data, buf);
 });
