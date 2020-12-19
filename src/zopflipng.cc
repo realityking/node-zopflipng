@@ -12,6 +12,14 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
     Napi::TypeError::New(env, "input must be a buffer").ThrowAsJavaScriptException();
   }
 
+  ZopfliPNGOptions png_options;
+  if(info.Length() >= 2) {
+    if (!info[1].IsObject()) {
+      Napi::TypeError::New(env, "options much be an object").ThrowAsJavaScriptException();
+    }
+    Napi::Object options = info[1].ToObject();
+  }
+
   Napi::Buffer<unsigned char> inputBuffer = info[0].As<Napi::Buffer<unsigned char>>();
   size_t inputBufferSize = inputBuffer.Length();
   const unsigned char * inputBufferData = inputBuffer.Data();
@@ -21,7 +29,6 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
   unsigned char* outputData = 0;
   size_t outputSize = 0;
 
-  ZopfliPNGOptions png_options;
   bool verbose = false;
 
   int error = ZopfliPNGOptimize(inputputPng, png_options, verbose, &outputPng);
