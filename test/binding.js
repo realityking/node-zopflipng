@@ -18,3 +18,10 @@ test('optimize a PNG', async t => {
 	t.true(data.length < buf.length);
 	t.true(isPng(data));
 });
+
+test('skip optimizing a non-PNG file', async t => {
+	const buf = await readFile(__filename);
+	const data = zopflipng(buf);
+
+	t.deepEqual(data, buf);
+});
