@@ -28,13 +28,13 @@
         '-fno-exceptions',
         '-Wextra',
         '-Wall',
+        '-Wno-unused-function',
         '-O3',
       ],
       'cflags_cc!': [
         '-fno-exceptions',
         '-Wextra',
         '-Wall',
-        '-Wno-unused-function',
         '-O3',
       ],
       'xcode_settings': {
