@@ -39,16 +39,9 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
     if(!option_value.IsNumber()) {
       Napi::TypeError::New(env, "Wrong type for option 'iterations'").ThrowAsJavaScriptException();
     }
-    png_options.num_iterations = option_value.As<Napi::Number>().Int32Value();
-  }
-
-  // Zopfli number of iterations on images > 200 KiB
-  if (options.Has("iterationsLarge")) {
-    option_value = options.Get("iterationsLarge");
-    if(!option_value.IsNumber()) {
-      Napi::TypeError::New(env, "Wrong type for option 'iterationsLarge'").ThrowAsJavaScriptException();
-    }
-    png_options.num_iterations_large = option_value.As<Napi::Number>().Int32Value();
+    const int num = option_value.As<Napi::Number>().Int32Value();
+    png_options.num_iterations = num;
+    png_options.num_iterations_large = num;
   }
 }
 
