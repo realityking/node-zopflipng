@@ -29,6 +29,7 @@
         '-Wextra',
         '-Wall',
         '-Wno-unused-function',
+        '-Wno-unused-parameter',
         '-ansi',
         '-pedantic',
         '-O3',
@@ -50,6 +51,7 @@
           '-Wextra',
           '-Wall',
           '-Wno-unused-function',
+          '-Wno-unused-parameter',
           '-ansi',
           '-pedantic',
           '-O3',
@@ -68,7 +70,8 @@
       },
       "defines": [
         "NAPI_DISABLE_CPP_EXCEPTIONS",
-        "NAPI_VERSION=3"
+        "NAPI_VERSION=3",
+        "NDEBUG"
       ],
     }
   ]
