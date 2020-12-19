@@ -1,5 +1,9 @@
 # node-zopflipng
 
+Node.js bindings for [zopflipng](https://en.wikipedia.org/wiki/Zopfli#PNG_optimization).
+
+Optimizes PNG images for size. This is very slow and should only be done for static resources.
+
 ## Install
 
 ```
