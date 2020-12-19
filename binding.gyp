@@ -33,6 +33,7 @@
         '-ansi',
         '-pedantic',
         '-O3',
+        '-fPIC',
       ],
       'cflags_cc!': [
         '-fno-exceptions',
@@ -41,6 +42,7 @@
         '-std=c++11',
         '-pedantic',
         '-O3',
+        '-fPIC',
       ],
       'xcode_settings': {
         'GCC_ENABLE_CPP_EXCEPTIONS': 'NO',
@@ -55,6 +57,7 @@
           '-ansi',
           '-pedantic',
           '-O3',
+          '-fPIC',
         ],
         'OTHER_CPLUSPLUSFLAGS': [
           '-fno-exceptions',
@@ -63,6 +66,7 @@
           '-std=c++11',
           '-pedantic',
           '-O3',
+          '-fPIC',
         ]
       },
       'msvs_settings': {
