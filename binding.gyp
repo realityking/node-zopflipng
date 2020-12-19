@@ -58,6 +58,7 @@
           '-pedantic',
           '-O3',
           '-fPIC',
+          '-flto'
         ],
         'OTHER_CPLUSPLUSFLAGS': [
           '-fno-exceptions',
@@ -67,6 +68,10 @@
           '-pedantic',
           '-O3',
           '-fPIC',
+          '-flto'
+        ],
+        'OTHER_LDFLAGS': [
+          '-flto'
         ]
       },
       'msvs_settings': {
