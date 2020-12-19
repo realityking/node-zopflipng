@@ -1,5 +1,6 @@
-#include <string.h>
+#include <sstream>
 #include <napi.h>
+#include "zopflipng/lodepng/lodepng.h"
 #include "zopflipng/zopflipng_lib.h"
 
 using namespace Napi;
@@ -23,7 +24,16 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
   ZopfliPNGOptions png_options;
   bool verbose = false;
 
-  int ret = ZopfliPNGOptimize(inputputPng, png_options, verbose, &outputPng);
+  int error = ZopfliPNGOptimize(inputputPng, png_options, verbose, &outputPng);
+  if (error) {
+    if (error == 1) {
+      Napi::Error::New(env, "Decoding error").ThrowAsJavaScriptException();
+    } else {
+      std::ostringstream errstr;
+      errstr << "Decoding error " << error << ": " << lodepng_error_text(error);
+      Napi::Error::New(env, errstr.str()).ThrowAsJavaScriptException();
+    }
+  }
 
   outputSize = outputPng.size();
   outputData = (unsigned char*) malloc(outputSize);
