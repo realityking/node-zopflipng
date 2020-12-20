@@ -1,5 +1,7 @@
 # node-zopflipng
 
+[![npm](https://img.shields.io/npm/v/node-zopflipng)](https://www.npmjs.com/package/node-zopflipng) [![Built on N-API v3](https://img.shields.io/badge/N--API-v3-green.svg)](https://nodejs.org/api/n-api.html#n_api_n_api_version_matrix) ![CI](https://github.com/realityking/node-zopflipng/workflows/CI/badge.svg)
+
 Node.js bindings for [zopflipng](https://en.wikipedia.org/wiki/Zopfli#PNG_optimization).
 
 Optimizes PNG images for size. This is very slow and should only be done for static resources.
