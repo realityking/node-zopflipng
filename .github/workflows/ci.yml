@@ -17,8 +17,10 @@ jobs:
         uses: fkirc/skip-duplicate-actions@v3.2.0
         with:
           cancel_others: 'true'
+          concurrent_skipping: 'true'
           skip_after_successful_duplicate: 'true'
           paths_ignore: '["**/README.md"]'
+          do_not_skip: '["pull_request"]'
 
   build-and-test:
     needs: pre_job

@@ -23,7 +23,7 @@ jobs:
           cancel_others: 'true'
           skip_after_successful_duplicate: 'true'
           paths_ignore: '["**/README.md"]'
-          do_not_skip: '["schedule"]'
+          do_not_skip: '["schedule", "pull_request"]'
 
   analyze:
     name: Analyze
