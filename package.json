@@ -23,7 +23,6 @@
     "install": "node-gyp-build",
     "prebuild": "prebuildify --napi",
     "lint": "eslint .",
-    "pretest": "npm run lint",
     "test": "ava"
   },
   "license": "(MIT AND Apache-2.0 AND Zlib)",
