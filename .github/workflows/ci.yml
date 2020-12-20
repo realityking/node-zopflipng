@@ -72,6 +72,5 @@ jobs:
         uses: actions/checkout@v2
       - name: Install clang-format
         run: sudo apt-get install clang-format
-      - run: clang-format --help
       - name: Check style
         run: clang-format --style=Google --Werror --dry-run src/zopflipng.cc
