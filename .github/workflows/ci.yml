@@ -6,9 +6,26 @@ env:
   CI: true
 
 jobs:
-  build-and-test:
-    runs-on: ${{ matrix.os }}
+  pre_job:
+    name: Check for unecessary runs
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v3.2.0
+        with:
+          cancel_others: 'true'
+          concurrent_skipping: 'true'
+          skip_after_successful_duplicate: 'true'
+          paths_ignore: '["**/README.md"]'
+          do_not_skip: '["pull_request"]'
 
+  build-and-test:
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         node-version: [10.x, 12.x, 14.x]
@@ -28,6 +45,8 @@ jobs:
       - run: npm test
 
   eslint:
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -40,6 +59,8 @@ jobs:
       - run: npm run lint
 
   clang-format:
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout repository
