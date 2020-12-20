@@ -1,5 +1,7 @@
-#include <sstream>
 #include <napi.h>
+
+#include <sstream>
+
 #include "lodepng/lodepng.h"
 #include "zopflipng/zopflipng_lib.h"
 
@@ -18,7 +20,8 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("lossyTransparent")) {
     option_value = options.Get("lossyTransparent");
     if (!option_value.IsBoolean()) {
-      Napi::TypeError::New(env, "Wrong type for option 'lossyTransparent'").ThrowAsJavaScriptException();
+      Napi::TypeError::New(env, "Wrong type for option 'lossyTransparent'")
+          .ThrowAsJavaScriptException();
     }
     png_options.lossy_transparent = option_value.As<Napi::Boolean>().Value();
   }
@@ -27,7 +30,8 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("lossy8bit")) {
     option_value = options.Get("lossy8bit");
     if (!option_value.IsBoolean()) {
-      Napi::TypeError::New(env, "Wrong type for option 'lossy8bit'").ThrowAsJavaScriptException();
+      Napi::TypeError::New(env, "Wrong type for option 'lossy8bit'")
+          .ThrowAsJavaScriptException();
     }
     png_options.lossy_8bit = option_value.As<Napi::Boolean>().Value();
   }
@@ -36,7 +40,8 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("more")) {
     option_value = options.Get("more");
     if (!option_value.IsBoolean()) {
-      Napi::TypeError::New(env, "Wrong type for option 'more'").ThrowAsJavaScriptException();
+      Napi::TypeError::New(env, "Wrong type for option 'more'")
+          .ThrowAsJavaScriptException();
     }
     if (option_value.As<Napi::Boolean>().Value()) {
       png_options.num_iterations *= 4;
@@ -48,7 +53,8 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("iterations")) {
     option_value = options.Get("iterations");
     if (!option_value.IsNumber()) {
-      Napi::TypeError::New(env, "Wrong type for option 'iterations'").ThrowAsJavaScriptException();
+      Napi::TypeError::New(env, "Wrong type for option 'iterations'")
+          .ThrowAsJavaScriptException();
     }
     int num = option_value.As<Napi::Number>().Int32Value();
 
@@ -61,7 +67,9 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   }
 }
 
-int check_png_encoding(const std::vector<unsigned char> inputPng, const std::vector<unsigned char> outputPng, ZopfliPNGOptions png_options) {
+int check_png_encoding(const std::vector<unsigned char> inputPng,
+                       const std::vector<unsigned char> outputPng,
+                       ZopfliPNGOptions png_options) {
   int error = 0;
   std::vector<unsigned char> image;
   unsigned w, h;
@@ -76,11 +84,10 @@ int check_png_encoding(const std::vector<unsigned char> inputPng, const std::vec
     } else {
       for (size_t i = 0; i < image.size(); i += 4) {
         bool same_alpha = image[i + 3] == origimage[i + 3];
-        bool same_rgb =
-            (png_options.lossy_transparent && image[i + 3] == 0) ||
-            (image[i + 0] == origimage[i + 0] &&
-             image[i + 1] == origimage[i + 1] &&
-             image[i + 2] == origimage[i + 2]);
+        bool same_rgb = (png_options.lossy_transparent && image[i + 3] == 0) ||
+                        (image[i + 0] == origimage[i + 0] &&
+                         image[i + 1] == origimage[i + 1] &&
+                         image[i + 2] == origimage[i + 2]);
         if (!same_alpha || !same_rgb) {
           error = 1;
           break;
@@ -92,26 +99,31 @@ int check_png_encoding(const std::vector<unsigned char> inputPng, const std::vec
   return error;
 }
 
-Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info) {
+Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(
+    const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
   if (info.Length() < 1 || !info[0].IsBuffer()) {
-    Napi::TypeError::New(env, "input must be a buffer").ThrowAsJavaScriptException();
+    Napi::TypeError::New(env, "input must be a buffer")
+        .ThrowAsJavaScriptException();
   }
 
   ZopfliPNGOptions png_options;
   if (info.Length() >= 2) {
     if (!info[1].IsObject()) {
-      Napi::TypeError::New(env, "options must be an object").ThrowAsJavaScriptException();
+      Napi::TypeError::New(env, "options must be an object")
+          .ThrowAsJavaScriptException();
     }
     Napi::Object options = info[1].ToObject();
     parseOptions(options, png_options);
   }
 
-  Napi::Buffer<unsigned char> inputBuffer = info[0].As<Napi::Buffer<unsigned char>>();
+  Napi::Buffer<unsigned char> inputBuffer =
+      info[0].As<Napi::Buffer<unsigned char>>();
   size_t inputBufferSize = inputBuffer.Length();
-  const unsigned char * inputBufferData = inputBuffer.Data();
-  const std::vector<unsigned char> inputPng(inputBufferData, inputBufferData + inputBufferSize);
+  const unsigned char* inputBufferData = inputBuffer.Data();
+  const std::vector<unsigned char> inputPng(inputBufferData,
+                                            inputBufferData + inputBufferSize);
 
   std::vector<unsigned char> outputPng;
   unsigned char* outputData = 0;
@@ -145,25 +157,30 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(const Napi::CallbackInfo& info)
   }
 
   outputSize = outputPng.size();
-  outputData = (unsigned char*) malloc(outputSize);
+  outputData = (unsigned char*)malloc(outputSize);
   if (!outputData) {
-    Napi::TypeError::New(env, "can't allocate memory for output png").ThrowAsJavaScriptException();
+    Napi::TypeError::New(env, "can't allocate memory for output png")
+        .ThrowAsJavaScriptException();
   }
 
-  memcpy(outputData,
-         reinterpret_cast<unsigned char*>(&outputPng[0]),
+  memcpy(outputData, reinterpret_cast<unsigned char*>(&outputPng[0]),
          outputSize);
 
   return Napi::Buffer<unsigned char>::New(info.Env(), outputData, outputSize);
 }
 
 class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
-  public:
-    PngOptimizeAsyncWorker(Napi::Env &env, ZopfliPNGOptions &png_options, const std::vector<unsigned char> &inputPng)
-      : Napi::AsyncWorker(env), png_options(png_options), inputPng(inputPng), deferred(Napi::Promise::Deferred::New(env)), outputData(0), outputSize(0)
-    {}
+ public:
+  PngOptimizeAsyncWorker(Napi::Env& env, ZopfliPNGOptions& png_options,
+                         const std::vector<unsigned char>& inputPng)
+      : Napi::AsyncWorker(env),
+        png_options(png_options),
+        inputPng(inputPng),
+        deferred(Napi::Promise::Deferred::New(env)),
+        outputData(0),
+        outputSize(0) {}
 
-  ~PngOptimizeAsyncWorker() {};
+  ~PngOptimizeAsyncWorker(){};
 
   // Executed inside the worker-thread.
   // It is not safe to access JS engine data structure
@@ -180,7 +197,8 @@ class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
         SetError("Decoding error");
       } else {
         std::ostringstream errstr;
-        errstr << "Decoding error " << error << ": " << lodepng_error_text(error);
+        errstr << "Decoding error " << error << ": "
+               << lodepng_error_text(error);
         SetError(errstr.str());
       }
       return;
@@ -200,14 +218,13 @@ class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
     }
 
     outputSize = outputPng.size();
-    outputData = (unsigned char*) malloc(outputSize);
+    outputData = (unsigned char*)malloc(outputSize);
     if (!outputData) {
       SetError("can't allocate memory for output png");
       return;
     }
 
-    memcpy(outputData,
-           reinterpret_cast<unsigned char*>(&outputPng[0]),
+    memcpy(outputData, reinterpret_cast<unsigned char*>(&outputPng[0]),
            outputSize);
   }
 
@@ -215,46 +232,50 @@ class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
   // this function will be run inside the main event loop
   // so it is safe to use JS engine data again
   void OnOK() {
-    Napi::Buffer<unsigned char> outputBuffer = Napi::Buffer<unsigned char>::New(Env(), outputData, outputSize);
+    Napi::Buffer<unsigned char> outputBuffer =
+        Napi::Buffer<unsigned char>::New(Env(), outputData, outputSize);
     deferred.Resolve(outputBuffer);
   }
 
-  void OnError(Napi::Error const &error) {
-    deferred.Reject(error.Value());
-  }
+  void OnError(Napi::Error const& error) { deferred.Reject(error.Value()); }
 
   Napi::Promise GetPromise() { return deferred.Promise(); }
 
-  private:
-    ZopfliPNGOptions png_options;
-    const std::vector<unsigned char> inputPng;
-    Napi::Promise::Deferred deferred;
-    unsigned char* outputData = 0;
-    size_t outputSize = 0;
+ private:
+  ZopfliPNGOptions png_options;
+  const std::vector<unsigned char> inputPng;
+  Napi::Promise::Deferred deferred;
+  unsigned char* outputData = 0;
+  size_t outputSize = 0;
 };
 
 Napi::Promise OptimzeZopfliPNG(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
   if (info.Length() < 1 || !info[0].IsBuffer()) {
-    Napi::TypeError::New(env, "input must be a buffer").ThrowAsJavaScriptException();
+    Napi::TypeError::New(env, "input must be a buffer")
+        .ThrowAsJavaScriptException();
   }
 
   ZopfliPNGOptions png_options;
   if (info.Length() >= 2) {
     if (!info[1].IsObject()) {
-      Napi::TypeError::New(env, "options must be an object").ThrowAsJavaScriptException();
+      Napi::TypeError::New(env, "options must be an object")
+          .ThrowAsJavaScriptException();
     }
     Napi::Object options = info[1].ToObject();
     parseOptions(options, png_options);
   }
 
-  Napi::Buffer<unsigned char> inputBuffer = info[0].As<Napi::Buffer<unsigned char>>();
+  Napi::Buffer<unsigned char> inputBuffer =
+      info[0].As<Napi::Buffer<unsigned char>>();
   size_t inputBufferSize = inputBuffer.Length();
-  const unsigned char * inputBufferData = inputBuffer.Data();
-  const std::vector<unsigned char> inputPng(inputBufferData, inputBufferData + inputBufferSize);
+  const unsigned char* inputBufferData = inputBuffer.Data();
+  const std::vector<unsigned char> inputPng(inputBufferData,
+                                            inputBufferData + inputBufferSize);
 
-  PngOptimizeAsyncWorker *worker = new PngOptimizeAsyncWorker(env, png_options, inputPng);
+  PngOptimizeAsyncWorker* worker =
+      new PngOptimizeAsyncWorker(env, png_options, inputPng);
 
   auto promise = worker->GetPromise();
   worker->Queue();
