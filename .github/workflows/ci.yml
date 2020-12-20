@@ -1,6 +1,11 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      # Dependabot always opens a PR so no need to trigger this twice
+      - 'dependabot/*'
+  pull_request:
 
 env:
   CI: true
