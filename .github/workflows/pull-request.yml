@@ -1,0 +1,34 @@
+name: "Pull request automtion"
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  main:
+    name: "Lint pull request title"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v2.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  auto-review:
+    name: Automatically approve certain pull requests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve dependabot's pull requests
+        if: github.actor == 'dependabot[bot]'
+        uses: andrewmusgrave/automatic-pull-request-review@0.0.2
+        with:
+          repo-token: '${{ secrets.GITHUB_TOKEN }}'
+          event: APPROVE
+      - name: Approve pull requests from the repo owner
+        if: github.actor == github.repository_owner
+        uses: andrewmusgrave/automatic-pull-request-review@0.0.2
+        with:
+          repo-token: '${{ secrets.GITHUB_TOKEN }}'
+          event: APPROVE
