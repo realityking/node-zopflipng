@@ -21,7 +21,7 @@
   },
   "scripts": {
     "install": "node-gyp-build",
-    "prebuild": "prebuildify --napi --tag-libc --strip",
+    "prebuild": "prebuildify --napi --tag-libc --tag-armv --strip",
     "lint": "eslint .",
     "test": "ava && tsd"
   },
