@@ -23,6 +23,37 @@ readFile('./raw.png')
 .then(buffer => writeFile('./optimized.png', buffer));
 ```
 
+### API
+
+#### optimizeZopfliPng(input, [options]): Promise<Buffer>
+
+#### input
+
+Type: `Buffer`
+
+#### options
+
+Type: `Object`
+
+See [Options](#options) for possible values.
+
+#### optimizeZopfliPngSync(input, [options]): Buffer
+
+*Using this function is strongly discouraged.* Running zopflipng can easily take
+more than 30s even on relatively small images (< 1 MB). `optimizeZopfliPngSync`
+will block the entire process during this time.
+
+#### input
+
+Type: `Buffer`
+
+#### options
+
+Type: `Object`
+
+See [Options](#options) for possible values.
+
+
 ### Options
 
 | Name               | Type      | Default                | Lossless | Description |
