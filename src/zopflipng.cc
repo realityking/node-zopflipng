@@ -124,10 +124,7 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(
   const unsigned char* inputBufferData = inputBuffer.Data();
   const std::vector<unsigned char> inputPng(inputBufferData,
                                             inputBufferData + inputBufferSize);
-
   std::vector<unsigned char> outputPng;
-  unsigned char* outputData = 0;
-  size_t outputSize = 0;
 
   bool verbose = false;
   int error = 0;
@@ -156,17 +153,9 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(
     outputPng = inputPng;
   }
 
-  outputSize = outputPng.size();
-  outputData = (unsigned char*)malloc(outputSize);
-  if (!outputData) {
-    Napi::TypeError::New(env, "can't allocate memory for output png")
-        .ThrowAsJavaScriptException();
-  }
-
-  memcpy(outputData, reinterpret_cast<unsigned char*>(&outputPng[0]),
-         outputSize);
-
-  return Napi::Buffer<unsigned char>::New(info.Env(), outputData, outputSize);
+  return Napi::Buffer<unsigned char>::Copy(
+      info.Env(), reinterpret_cast<unsigned char*>(&outputPng[0]),
+      outputPng.size());
 }
 
 class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
@@ -176,9 +165,7 @@ class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
       : Napi::AsyncWorker(env),
         png_options(png_options),
         inputPng(inputPng),
-        deferred(Napi::Promise::Deferred::New(env)),
-        outputData(0),
-        outputSize(0) {}
+        deferred(Napi::Promise::Deferred::New(env)) {}
 
   ~PngOptimizeAsyncWorker(){};
 
@@ -187,7 +174,6 @@ class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
   // here, so everything we need for input and output
   // should go on `this`.
   void Execute() {
-    std::vector<unsigned char> outputPng;
     bool verbose = false;
     int error = 0;
 
@@ -216,24 +202,16 @@ class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
     if (outputPng.size() >= inputPng.size()) {
       outputPng = inputPng;
     }
-
-    outputSize = outputPng.size();
-    outputData = (unsigned char*)malloc(outputSize);
-    if (!outputData) {
-      SetError("can't allocate memory for output png");
-      return;
-    }
-
-    memcpy(outputData, reinterpret_cast<unsigned char*>(&outputPng[0]),
-           outputSize);
   }
 
   // Executed when the async work is complete
   // this function will be run inside the main event loop
   // so it is safe to use JS engine data again
   void OnOK() {
-    Napi::Buffer<unsigned char> outputBuffer =
-        Napi::Buffer<unsigned char>::New(Env(), outputData, outputSize);
+    const Napi::Buffer<unsigned char> outputBuffer =
+        Napi::Buffer<unsigned char>::Copy(
+            Env(), reinterpret_cast<unsigned char*>(&outputPng[0]),
+            outputPng.size());
     deferred.Resolve(outputBuffer);
   }
 
@@ -245,8 +223,7 @@ class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
   ZopfliPNGOptions png_options;
   const std::vector<unsigned char> inputPng;
   Napi::Promise::Deferred deferred;
-  unsigned char* outputData = 0;
-  size_t outputSize = 0;
+  std::vector<unsigned char> outputPng;
 };
 
 Napi::Promise OptimzeZopfliPNG(const Napi::CallbackInfo& info) {
