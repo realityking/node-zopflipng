@@ -10,25 +10,8 @@ on:
     - cron: '17 20 * * 0'
 
 jobs:
-  pre_job:
-    name: Check for unecessary runs
-    runs-on: ubuntu-latest
-    # Map a step output to a job output
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@v3.2.0
-        with:
-          cancel_others: 'true'
-          skip_after_successful_duplicate: 'true'
-          paths_ignore: '["**/README.md"]'
-          do_not_skip: '["schedule", "pull_request"]'
-
   analyze:
     name: Analyze
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
 
     strategy:
