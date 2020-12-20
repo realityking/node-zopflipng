@@ -38,3 +38,14 @@ jobs:
           node-version: 14
       - run: npm install --no-audit --ignore-scripts --no-fund
       - run: npm run lint
+
+  clang-format:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install clang-format
+        run: sudo apt-get install clang-format
+      - run: clang-format --help
+      - name: Check style
+        run: clang-format --style=Google --Werror --dry-run src/zopflipng.cc
