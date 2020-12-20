@@ -1,6 +1,11 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      # Dependabot always opens a PR so no need to trigger this twice
+      - 'dependabot/*'
+  pull_request:
 
 env:
   CI: true
@@ -67,6 +72,5 @@ jobs:
         uses: actions/checkout@v2
       - name: Install clang-format
         run: sudo apt-get install clang-format
-      - run: clang-format --help
       - name: Check style
         run: clang-format --style=Google --Werror --dry-run src/zopflipng.cc
