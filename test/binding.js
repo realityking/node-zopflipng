@@ -37,6 +37,15 @@ test('sync: optimize a PNG with "more" option', async t => {
   t.true(isPng(data))
 })
 
+test('sync: throws error if input is not a buffer', async t => {
+  t.throws(() => {
+    optimizeZopfliPngSync('nope')
+  }, {
+    instanceOf: TypeError,
+    message: 'input must be a buffer'
+  })
+})
+
 test('sync: throws error on non-PNG file', async t => {
   const buf = await readFile(__filename)
   t.throws(() => {
@@ -44,6 +53,26 @@ test('sync: throws error on non-PNG file', async t => {
   }, {
     instanceOf: Error,
     message: 'input must be a valid PNG'
+  })
+})
+
+test('sync: throws error if options is not an object', async t => {
+  const buf = await readFile(path.join(__dirname, 'fixtures/test.png'))
+  t.throws(() => {
+    optimizeZopfliPngSync(buf, 'nope')
+  }, {
+    instanceOf: TypeError,
+    message: 'options must be an object'
+  })
+})
+
+test('sync: throws error if option value has wrong type', async t => {
+  const buf = await readFile(path.join(__dirname, 'fixtures/test.png'))
+  t.throws(() => {
+    optimizeZopfliPngSync(buf, { more: 123 })
+  }, {
+    instanceOf: TypeError,
+    message: 'Wrong type for option \'more\''
   })
 })
 
@@ -62,11 +91,42 @@ test('async: optimize a PNG', async t => {
   t.true(isPng(data))
 })
 
+test('async: optimize a PNG with "more" option', async t => {
+  const buf = await readFile(path.join(__dirname, 'fixtures/test.png'))
+  const data = await optimizeZopfliPng(buf, { more: true })
+
+  t.true(data.length < buf.length)
+  t.true(isPng(data))
+})
+
+test('async: throws error if input is not a buffer', async t => {
+  await t.throwsAsync(optimizeZopfliPng('nope'), {
+    instanceOf: TypeError,
+    message: 'input must be a buffer'
+  })
+})
+
 test('async: throws error on non-PNG file', async t => {
   const buf = await readFile(__filename)
   await t.throwsAsync(optimizeZopfliPng(buf), {
     instanceOf: Error,
     message: 'input must be a valid PNG'
+  })
+})
+
+test('async: throws error if options is not an object', async t => {
+  const buf = await readFile(path.join(__dirname, 'fixtures/test.png'))
+  await t.throwsAsync(optimizeZopfliPng(buf, 'nope'), {
+    instanceOf: TypeError,
+    message: 'options must be an object'
+  })
+})
+
+test('async: throws error if option value has wrong type', async t => {
+  const buf = await readFile(path.join(__dirname, 'fixtures/test.png'))
+  await t.throwsAsync(optimizeZopfliPng(buf, { more: 123 }), {
+    instanceOf: TypeError,
+    message: 'Wrong type for option \'more\''
   })
 })
 

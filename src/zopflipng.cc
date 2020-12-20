@@ -8,20 +8,18 @@
 using namespace Napi;
 
 // Based on node-zopfli Pierre Inglebert. Licensed under MIT.
-void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
+int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   Napi::Value option_value;
-  const Napi::Env env = options.Env();
 
   if (options.IsEmpty()) {
-    return;
+    return 0;
   }
 
   // Allow altering hidden colors of fully transparent pixels
   if (options.Has("lossyTransparent")) {
     option_value = options.Get("lossyTransparent");
     if (!option_value.IsBoolean()) {
-      Napi::TypeError::New(env, "Wrong type for option 'lossyTransparent'")
-          .ThrowAsJavaScriptException();
+      return 2;
     }
     png_options.lossy_transparent = option_value.As<Napi::Boolean>().Value();
   }
@@ -30,8 +28,7 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("lossy8bit")) {
     option_value = options.Get("lossy8bit");
     if (!option_value.IsBoolean()) {
-      Napi::TypeError::New(env, "Wrong type for option 'lossy8bit'")
-          .ThrowAsJavaScriptException();
+      return 3;
     }
     png_options.lossy_8bit = option_value.As<Napi::Boolean>().Value();
   }
@@ -40,8 +37,7 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("more")) {
     option_value = options.Get("more");
     if (!option_value.IsBoolean()) {
-      Napi::TypeError::New(env, "Wrong type for option 'more'")
-          .ThrowAsJavaScriptException();
+      return 4;
     }
     if (option_value.As<Napi::Boolean>().Value()) {
       png_options.num_iterations *= 4;
@@ -53,8 +49,7 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("iterations")) {
     option_value = options.Get("iterations");
     if (!option_value.IsNumber()) {
-      Napi::TypeError::New(env, "Wrong type for option 'iterations'")
-          .ThrowAsJavaScriptException();
+      return 5;
     }
     int num = option_value.As<Napi::Number>().Int32Value();
 
@@ -65,6 +60,25 @@ void parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
     png_options.num_iterations = num;
     png_options.num_iterations_large = num;
   }
+
+  return 0;
+}
+
+const char* parse_option_error_text(const unsigned code) {
+  switch (code) {
+    case 0:
+      return "no error, everything went ok";
+    // 1 is reserved for future use
+    case 2:
+      return "Wrong type for option 'lossyTransparent'";
+    case 3:
+      return "Wrong type for option 'lossy8bit'";
+    case 4:
+      return "Wrong type for option 'more'";
+    case 5:
+      return "Wrong type for option 'iterations'";
+  }
+  return "unknown error code";
 }
 
 int check_png_encoding(const std::vector<unsigned char> inputPng,
@@ -99,23 +113,31 @@ int check_png_encoding(const std::vector<unsigned char> inputPng,
   return error;
 }
 
+#define NAPI_THROW_EMPTY_BUFFER(e) \
+  NAPI_THROW(e, Napi::Buffer<unsigned char>::New(info.Env(), 0))
+
 Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(
     const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
+  int error = 0;
 
   if (info.Length() < 1 || !info[0].IsBuffer()) {
-    Napi::TypeError::New(env, "input must be a buffer")
-        .ThrowAsJavaScriptException();
+    NAPI_THROW_EMPTY_BUFFER(
+        Napi::TypeError::New(env, "input must be a buffer"));
   }
 
   ZopfliPNGOptions png_options;
   if (info.Length() >= 2) {
     if (!info[1].IsObject()) {
-      Napi::TypeError::New(env, "options must be an object")
-          .ThrowAsJavaScriptException();
+      NAPI_THROW_EMPTY_BUFFER(
+          Napi::TypeError::New(env, "options must be an object"));
     }
     Napi::Object options = info[1].ToObject();
-    parseOptions(options, png_options);
+    error = parseOptions(options, png_options);
+    if (error) {
+      NAPI_THROW_EMPTY_BUFFER(
+          Napi::TypeError::New(env, parse_option_error_text(error)));
+    }
   }
 
   Napi::Buffer<unsigned char> inputBuffer =
@@ -127,16 +149,15 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(
   std::vector<unsigned char> outputPng;
 
   bool verbose = false;
-  int error = 0;
 
   error = ZopfliPNGOptimize(inputPng, png_options, verbose, &outputPng);
   if (error) {
     if (error == 1) {
-      Napi::Error::New(env, "Decoding error").ThrowAsJavaScriptException();
+      NAPI_THROW_EMPTY_BUFFER(Napi::Error::New(env, "Decoding error"));
     } else {
       std::ostringstream errstr;
       errstr << "Decoding error " << error << ": " << lodepng_error_text(error);
-      Napi::Error::New(env, errstr.str()).ThrowAsJavaScriptException();
+      NAPI_THROW_EMPTY_BUFFER(Napi::Error::New(env, errstr.str()));
     }
   }
 
@@ -226,22 +247,31 @@ class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
   std::vector<unsigned char> outputPng;
 };
 
+#define NAPI_REJECT(e, env)                                               \
+  do {                                                                    \
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env); \
+    deferred.Reject(e.Value());                                           \
+    return deferred.Promise();                                            \
+  } while (0)
+
 Napi::Promise OptimzeZopfliPNG(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
   if (info.Length() < 1 || !info[0].IsBuffer()) {
-    Napi::TypeError::New(env, "input must be a buffer")
-        .ThrowAsJavaScriptException();
+    NAPI_REJECT(Napi::TypeError::New(env, "input must be a buffer"), env);
   }
 
   ZopfliPNGOptions png_options;
   if (info.Length() >= 2) {
     if (!info[1].IsObject()) {
-      Napi::TypeError::New(env, "options must be an object")
-          .ThrowAsJavaScriptException();
+      NAPI_REJECT(Napi::TypeError::New(env, "options must be an object"), env);
     }
     Napi::Object options = info[1].ToObject();
-    parseOptions(options, png_options);
+    int error = parseOptions(options, png_options);
+    if (error) {
+      NAPI_REJECT(Napi::TypeError::New(env, parse_option_error_text(error)),
+                  env);
+    }
   }
 
   Napi::Buffer<unsigned char> inputBuffer =
