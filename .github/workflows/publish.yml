@@ -1,0 +1,122 @@
+name: Publish a release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  prebuild:
+    name: Prebuild native module
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - windows-latest
+        architecture:
+          - x64
+        # also get windows-x86:
+        include:
+          - os: windows-latest
+            architecture: x86
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js 14 - ${{ matrix.architecture }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          architecture: ${{ matrix.architecture }}
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Prebuild
+        run: npm run prebuild
+
+      - name: Upload prebuilds
+        uses: actions/upload-artifact@v2
+        with:
+          name: prebuild-${{ runner.os }}-${{ matrix.architecture }}
+          path: prebuilds
+          retention-days: 1
+
+  prebuild_docker:
+    name: Prebuild container modules
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - centos7-devtoolset7
+          - alpine
+          - linux-arm64
+          - linux-armv7
+          - linux-armv6
+    container:
+      image: prebuild/${{ matrix.image }}
+      options: --user root
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Prebuild
+        run: npm run prebuild
+
+      - name: Upload prebuilds
+        uses: actions/upload-artifact@v2
+        with:
+          name: prebuild-${{ matrix.image }}
+          path: prebuilds
+          retention-days: 1
+
+  assemble:
+    name: Assemble prebuilt binaries
+    needs: [ prebuild, prebuild_docker ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download prebuilt binaries
+        uses: actions/download-artifact@v2
+
+      - name: Move binaries to one folder
+        run: mkdir prebuilds && cp -rl ./prebuild-*/* ./prebuilds/
+
+      - name: Upload prebuilds
+        uses: actions/upload-artifact@v2
+        with:
+          name: prebuilds
+          path: prebuilds
+
+  publish:
+    name: Publish
+    needs: assemble
+    environment: npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Download prebuilt binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: prebuilds
+          path: prebuilds
+
+      - name: Publish on npm
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
