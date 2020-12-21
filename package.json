@@ -1,6 +1,6 @@
 {
   "name": "node-zopflipng",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Native module for zopflipng",
   "repository": "realityking/node-zopflipng",
   "engines": {
