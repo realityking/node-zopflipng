@@ -1,17 +1,17 @@
 on:
-   push:
-     branches:
-       - main
+  push:
+    branches:
+      - main
 
  name: Release, plase
- jobs:
-   release-please:
-     name: Release, plase
-     runs-on: ubuntu-latest
-     steps:
-       - uses: GoogleCloudPlatform/release-please-action@v2
-         with:
-           token: ${{ secrets.GITHUB_TOKEN }}
-           release-type: node
-           package-name: node-zopflipng
-           bump-minor-pre-major: true
+   jobs:
+     release-please:
+       name: Release, plase
+       runs-on: ubuntu-latest
+       steps:
+         - uses: GoogleCloudPlatform/release-please-action@v2
+           with:
+             token: ${{ secrets.GITHUB_TOKEN }}
+             release-type: node
+             package-name: node-zopflipng
+             bump-minor-pre-major: true
