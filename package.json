@@ -23,6 +23,7 @@
     "install": "node-gyp-build",
     "prebuild": "prebuildify --napi --tag-libc --tag-armv --strip",
     "lint": "eslint .",
+    "test:esm": "ava --config ava.config.esm.js",
     "test": "ava && tsd"
   },
   "license": "(MIT AND Apache-2.0 AND Zlib)",
@@ -30,7 +31,10 @@
   "main": "lib/zopflipng.js",
   "types": "lib/zopflipng.d.ts",
   "exports": {
-    ".": "lib/zopflipng.js",
+    ".": {
+      "require": "./lib/zopflipng.js",
+      "import": "./lib/zopflipng.mjs"
+    },
     "./package.json": "./package.json"
   },
   "files": [

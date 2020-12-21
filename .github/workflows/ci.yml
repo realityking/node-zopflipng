@@ -48,6 +48,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install --no-fund
       - run: npm test
+      - name: Run tests for ESM
+        run: npm run test:esm
+        if: matrix.node-version != '10.x'
 
   eslint:
     needs: pre_job
