@@ -37,7 +37,7 @@ test('sync: optimize a PNG with "more" option', async t => {
   t.true(isPng(data))
 })
 
-test('sync: throws error if input is not a buffer', async t => {
+test('sync: throws error if input is not a buffer', t => {
   t.throws(() => {
     optimizeZopfliPngSync('nope')
   }, {

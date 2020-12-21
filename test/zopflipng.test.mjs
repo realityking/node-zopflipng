@@ -7,7 +7,7 @@ import isPng from 'is-png'
 
 import { optimizeZopfliPng, optimizeZopfliPngSync } from 'node-zopflipng'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 test('sync: optimize a PNG', async t => {
   const buf = await fs.readFile(path.join(__dirname, 'fixtures/test.png'))
