@@ -1,6 +1,6 @@
 {
   "name": "node-zopflipng",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Native module for zopflipng",
   "repository": "realityking/node-zopflipng",
   "engines": {
@@ -38,6 +38,7 @@
     "./package.json": "./package.json"
   },
   "files": [
+    "CHANGELOG.md",
     "src",
     "lib",
     "prebuilds",
