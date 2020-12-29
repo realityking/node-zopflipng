@@ -15,8 +15,14 @@ optimizeZopfliPngSync(image, {
   lossyTransparent: true,
   lossy8bit: true,
   more: true,
-  iterations: 12
+  iterations: 12,
+  keepChunks: ['eXif']
 });
+
+// Arrays can be empty
+expectError(optimizeZopfliPngSync(image, {
+  iterations: []
+}));
 
 // Unknown option
 expectError(optimizeZopfliPngSync(image, {unknown: true}));
@@ -31,11 +37,14 @@ expectError(optimizeZopfliPngSync(image, {
 expectError(optimizeZopfliPngSync(image, {
   iterations: '12'
 }));
+expectError(optimizeZopfliPngSync(image, {
+  iterations: ['12', 12]
+}));
 
 // Not an object as input
 expectError(optimizeZopfliPngSync(''));
 
-// Not arguments
+// No arguments
 expectError(optimizeZopfliPngSync());
 
 // async
@@ -55,5 +64,5 @@ expectError(optimizeZopfliPng(image, ''));
 // Not an object as input
 expectError(optimizeZopfliPng(''));
 
-// Not arguments
+// No arguments
 expectError(optimizeZopfliPng());
