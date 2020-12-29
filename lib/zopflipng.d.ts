@@ -3,6 +3,7 @@ export type Options = {
   lossy8bit?: boolean
   more?: boolean
   iterations?: number
+  keepChunks?: string[]
 }
 
 export function optimizeZopfliPngSync(input: Buffer, options?: Options) : Buffer;

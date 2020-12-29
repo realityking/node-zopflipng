@@ -6,6 +6,7 @@ const { promisify } = require('util')
 
 const test = require('ava')
 const isPng = require('is-png')
+const sharp = require('sharp')
 
 const { optimizeZopfliPng, optimizeZopfliPngSync } = require('..')
 
@@ -128,6 +129,40 @@ test('async: throws error if option value has wrong type', async t => {
     instanceOf: TypeError,
     message: 'Wrong type for option \'more\''
   })
+})
+
+test('async: throws error if keepChunks is not an array of strings', async t => {
+  const buf = await readFile(path.join(__dirname, 'fixtures/test.png'))
+  await t.throwsAsync(optimizeZopfliPng(buf, { keepChunks: 123 }), {
+    instanceOf: TypeError,
+    message: 'Wrong type for option \'keepChunks\''
+  })
+
+  await t.throwsAsync(optimizeZopfliPng(buf, { keepChunks: ['exif', 123] }), {
+    instanceOf: TypeError,
+    message: 'Wrong type for option \'keepChunks\''
+  })
+})
+
+test('async: keep exif metadata when requested', async t => {
+  const buf = await readFile(path.join(__dirname, 'fixtures/exif2c08.png'))
+  const originalImage = sharp(buf)
+  const originalMetadata = await originalImage.metadata()
+
+  t.not(originalMetadata.exif, undefined)
+
+  const compressedData = await optimizeZopfliPng(buf)
+  const compressedImage = sharp(compressedData)
+  const compressedMetadata = await compressedImage.metadata()
+
+  t.is(compressedMetadata.exif, undefined)
+
+  const keepChunksData = await optimizeZopfliPng(buf, { keepChunks: ['eXIf'] })
+  const keepChunksImage = sharp(keepChunksData)
+  const keepChunksMetadata = await keepChunksImage.metadata()
+
+  t.not(keepChunksMetadata.exif, undefined)
+  t.deepEqual(keepChunksMetadata.exif, originalMetadata.exif)
 })
 
 test('async: skip optimizing an already optimized PNG', async t => {

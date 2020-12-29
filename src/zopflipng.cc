@@ -33,7 +33,7 @@ int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
     png_options.lossy_8bit = option_value.As<Napi::Boolean>().Value();
   }
 
-  // Zopfli number of iterations
+  // "more" iterations
   if (options.Has("more")) {
     option_value = options.Get("more");
     if (!option_value.IsBoolean()) {
@@ -61,6 +61,28 @@ int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
     png_options.num_iterations_large = num;
   }
 
+  // Preserve certain chunks from the original PNG
+  if (options.Has("keepChunks")) {
+    option_value = options.Get("keepChunks");
+    if (!option_value.IsArray()) {
+      return 6;
+    }
+    const Napi::Array inputArray = option_value.As<Napi::Array>();
+    const uint32_t length = inputArray.Length();
+
+    if (length > 0) {
+      png_options.keepchunks.reserve(length);
+
+      for (uint32_t i = 0; i < length; ++i) {
+        const Napi::Value val = inputArray[i];
+        if (!val.IsString()) {
+          return 6;
+        }
+        png_options.keepchunks.push_back(val.As<Napi::String>().Utf8Value());
+      }
+    }
+  }
+
   return 0;
 }
 
@@ -77,6 +99,8 @@ const char* parse_option_error_text(const unsigned code) {
       return "Wrong type for option 'more'";
     case 5:
       return "Wrong type for option 'iterations'";
+    case 6:
+      return "Wrong type for option 'keepChunks'";
   }
   return "unknown error code";
 }
