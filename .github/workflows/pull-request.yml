@@ -22,13 +22,13 @@ jobs:
     steps:
       - name: Approve dependabot's pull requests
         if: github.actor == 'dependabot[bot]'
-        uses: andrewmusgrave/automatic-pull-request-review@0.0.2
+        uses: andrewmusgrave/automatic-pull-request-review@0.0.3
         with:
           repo-token: '${{ secrets.GITHUB_TOKEN }}'
           event: APPROVE
       - name: Approve pull requests from the repo owner
         if: github.actor == github.repository_owner
-        uses: andrewmusgrave/automatic-pull-request-review@0.0.2
+        uses: andrewmusgrave/automatic-pull-request-review@0.0.3
         with:
           repo-token: '${{ secrets.GITHUB_TOKEN }}'
           event: APPROVE
