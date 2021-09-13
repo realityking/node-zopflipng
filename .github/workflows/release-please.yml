@@ -10,7 +10,7 @@ jobs:
     name: Release, plase
     runs-on: ubuntu-latest
     steps:
-      - uses: GoogleCloudPlatform/release-please-action@v2.25
+      - uses: GoogleCloudPlatform/release-please-action@v2.32
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
