@@ -61,7 +61,7 @@
     "prebuildify": "^4.1.1",
     "sharp": "^0.28.0",
     "standard": "^16.0.3",
-    "tsd": "^0.15.0"
+    "tsd": "^0.19.1"
   },
   "tsd": {
     "directory": "test"
