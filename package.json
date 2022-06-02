@@ -58,6 +58,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
+    "node-gyp": "^8.4.1",
     "prebuildify": "^4.1.1",
     "sharp": "^0.28.0",
     "standard": "^16.0.3",
