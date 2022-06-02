@@ -21,7 +21,7 @@ jobs:
             architecture: x86
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3.0.2
 
       - name: Use Node.js 14 - ${{ matrix.architecture }}
         uses: actions/setup-node@v2.1.5
@@ -36,7 +36,7 @@ jobs:
         run: npm run prebuild
 
       - name: Upload prebuilds
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: prebuild-${{ runner.os }}-${{ matrix.architecture }}
           path: prebuilds
@@ -59,7 +59,7 @@ jobs:
       options: --user root
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3.0.2
 
       - name: Use Node.js 14
         uses: actions/setup-node@v2.1.5
@@ -73,7 +73,7 @@ jobs:
         run: npm run prebuild
 
       - name: Upload prebuilds
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: prebuild-${{ matrix.image }}
           path: prebuilds
@@ -91,7 +91,7 @@ jobs:
         run: mkdir prebuilds && cp -rl ./prebuild-*/* ./prebuilds/
 
       - name: Upload prebuilds
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: prebuilds
           path: prebuilds
@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3.0.2
 
       - name: Use Node.js 14
         uses: actions/setup-node@v2.1.5
