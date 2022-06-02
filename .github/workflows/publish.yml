@@ -23,10 +23,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3.0.2
 
-      - name: Use Node.js 14 - ${{ matrix.architecture }}
+      - name: Use Node.js 16 - ${{ matrix.architecture }}
         uses: actions/setup-node@v3.2.0
         with:
-          node-version: 14
+          node-version: 16
           architecture: ${{ matrix.architecture }}
 
       - name: Install dependencies
@@ -61,10 +61,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3.0.2
 
-      - name: Use Node.js 14
+      - name: Use Node.js 16
         uses: actions/setup-node@v3.2.0
         with:
-          node-version: 14
+          node-version: 16
 
       - name: Install dependencies
         run: npm install --ignore-scripts
@@ -105,10 +105,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3.0.2
 
-      - name: Use Node.js 14
+      - name: Use Node.js 16
         uses: actions/setup-node@v3.2.0
         with:
-          node-version: 14
+          node-version: 16
 
       - name: Download prebuilt binaries
         uses: actions/download-artifact@v3
