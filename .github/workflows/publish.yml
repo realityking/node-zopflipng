@@ -36,7 +36,7 @@ jobs:
         run: npm run prebuild
 
       - name: Upload prebuilds
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: prebuild-${{ runner.os }}-${{ matrix.architecture }}
           path: prebuilds
@@ -73,7 +73,7 @@ jobs:
         run: npm run prebuild
 
       - name: Upload prebuilds
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: prebuild-${{ matrix.image }}
           path: prebuilds
@@ -91,7 +91,7 @@ jobs:
         run: mkdir prebuilds && cp -rl ./prebuild-*/* ./prebuilds/
 
       - name: Upload prebuilds
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: prebuilds
           path: prebuilds
