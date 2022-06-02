@@ -85,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download prebuilt binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
 
       - name: Move binaries to one folder
         run: mkdir prebuilds && cp -rl ./prebuild-*/* ./prebuilds/
@@ -111,7 +111,7 @@ jobs:
           node-version: 14
 
       - name: Download prebuilt binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: prebuilds
           path: prebuilds
