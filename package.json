@@ -60,7 +60,7 @@
     "eslint-plugin-promise": "^5.2",
     "node-gyp": "^8.4.1",
     "prebuildify": "^4.1.1",
-    "sharp": "^0.28.0",
+    "sharp": "^0.31.2",
     "standard": "^16.0.3",
     "tsd": "^0.15.0"
   },
