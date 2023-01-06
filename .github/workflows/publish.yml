@@ -21,7 +21,7 @@ jobs:
             architecture: x86
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.3.0
 
       - name: Use Node.js 16 - ${{ matrix.architecture }}
         uses: actions/setup-node@v3.2.0
@@ -59,7 +59,7 @@ jobs:
       options: --user root
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.3.0
 
       - name: Use Node.js 16
         uses: actions/setup-node@v3.2.0
@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.3.0
 
       - name: Use Node.js 16
         uses: actions/setup-node@v3.2.0
