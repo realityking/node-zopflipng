@@ -11,7 +11,7 @@ jobs:
     environment: GitHub
     runs-on: ubuntu-latest
     steps:
-      - uses: GoogleCloudPlatform/release-please-action@v3.2
+      - uses: GoogleCloudPlatform/release-please-action@v3.7
         with:
           token: ${{ secrets.GH_PERSONAL_TOKEN }}
           release-type: node
