@@ -4,7 +4,7 @@
   "description": "Native module for zopflipng",
   "repository": "realityking/node-zopflipng",
   "engines": {
-    "node": ">=10.13.0"
+    "node": "^14.15.0 || ^16.13.0 || >=18.0.0"
   },
   "keywords": [
     "png",
