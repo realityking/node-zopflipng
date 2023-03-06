@@ -8,6 +8,7 @@ on:
 jobs:
   release-please:
     name: Release, plase
+    environment: GitHub
     runs-on: ubuntu-latest
     steps:
       - uses: GoogleCloudPlatform/release-please-action@v3.2
