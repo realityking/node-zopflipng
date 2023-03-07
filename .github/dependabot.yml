@@ -4,6 +4,7 @@ updates:
     directory: "/"
     commit-message:
       prefix: "deps"
+      prefix-development: "chore"
     schedule:
       interval: "daily"
   - package-ecosystem: "github-actions"
