@@ -61,7 +61,6 @@
     "node-gyp": "^8.4.1",
     "prebuildify": "^4.1.1",
     "sharp": "^0.31.3",
-    "standard": "^16.0.3",
     "tsd": "^0.26.0"
   },
   "tsd": {
