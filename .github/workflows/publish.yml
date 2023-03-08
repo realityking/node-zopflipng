@@ -53,7 +53,6 @@ jobs:
           - alpine
           - linux-arm64-lts
           - linux-armv7
-          - linux-armv6
     container:
       image: ghcr.io/prebuild/${{ matrix.image }}
       options: --user root
