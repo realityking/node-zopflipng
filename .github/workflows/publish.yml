@@ -55,7 +55,7 @@ jobs:
           - linux-armv7
           - linux-armv6
     container:
-      image: prebuild/${{ matrix.image }}
+      image: ghcr.io/prebuild/${{ matrix.image }}
       options: --user root
     steps:
       - name: Checkout code
