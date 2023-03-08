@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#define LODEPNG_NO_COMPILE_DISK
 #include "lodepng/lodepng.h"
 #include "zopflipng/zopflipng_lib.h"
 
