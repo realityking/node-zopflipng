@@ -51,7 +51,7 @@ jobs:
         image:
           - centos7-devtoolset7
           - alpine
-          - linux-arm64
+          - linux-arm64-lts
           - linux-armv7
           - linux-armv6
     container:
