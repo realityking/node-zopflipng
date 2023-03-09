@@ -1,16 +1,13 @@
 'use strict'
 
-const fs = require('fs')
+const { readFile } = require('fs/promises')
 const path = require('path')
-const { promisify } = require('util')
 
 const test = require('ava')
 const isPng = require('is-png')
 const sharp = require('sharp')
 
 const { optimizeZopfliPng, optimizeZopfliPngSync } = require('..')
-
-const readFile = promisify(fs.readFile)
 
 test('sync: optimize a PNG', async t => {
   const buf = await readFile(path.join(__dirname, 'fixtures/test.png'))
