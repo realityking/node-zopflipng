@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.0.0](https://github.com/realityking/node-zopflipng/compare/v1.1.0...v2.0.0) (2023-03-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* removes armv6 builds
+* drop support for Node.js 10 and 12
+
+### Features
+
+* **deps:** update lodepng to version 20221108 ([#289](https://github.com/realityking/node-zopflipng/issues/289)) ([df6b7ec](https://github.com/realityking/node-zopflipng/commit/df6b7ec2b6dbc68571003bc6bb2ba4ab1d64a05d))
+* use an older glibc version for linux-arm64 builds to improve compatability ([810f9df](https://github.com/realityking/node-zopflipng/commit/810f9dfdc3fdbc5e8ff58590e98606e052f6bc55))
+
+
+### Miscellaneous Chores
+
+* drop support for Node.js 10 and 12 ([a6b2db3](https://github.com/realityking/node-zopflipng/commit/a6b2db358987ae16714b2bf79db33b5af1cc541c))
+* removes armv6 builds ([e7f4217](https://github.com/realityking/node-zopflipng/commit/e7f421746f0a1bcdb0ef00adfaa84efe1d135136))
+
 ## [1.1.0](https://github.com/realityking/node-zopflipng/compare/v1.0.0...v1.1.0) (2022-06-03)
 
 
