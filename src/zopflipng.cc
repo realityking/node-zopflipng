@@ -9,7 +9,8 @@
 using namespace Napi;
 
 // Based on node-zopfli Pierre Inglebert. Licensed under MIT.
-int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
+int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options,
+                 Napi::Env env, Napi::Error& error) {
   Napi::Value option_value;
 
   if (options.IsEmpty()) {
@@ -20,7 +21,9 @@ int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("lossyTransparent")) {
     option_value = options.Get("lossyTransparent");
     if (!option_value.IsBoolean()) {
-      return 2;
+      error =
+          Napi::TypeError::New(env, "Wrong type for option 'lossyTransparent'");
+      return 1;
     }
     png_options.lossy_transparent = option_value.As<Napi::Boolean>().Value();
   }
@@ -29,7 +32,8 @@ int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("lossy8bit")) {
     option_value = options.Get("lossy8bit");
     if (!option_value.IsBoolean()) {
-      return 3;
+      error = Napi::TypeError::New(env, "Wrong type for option 'lossy8bit'");
+      return 1;
     }
     png_options.lossy_8bit = option_value.As<Napi::Boolean>().Value();
   }
@@ -38,7 +42,8 @@ int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("more")) {
     option_value = options.Get("more");
     if (!option_value.IsBoolean()) {
-      return 4;
+      error = Napi::TypeError::New(env, "Wrong type for option 'more'");
+      return 1;
     }
     if (option_value.As<Napi::Boolean>().Value()) {
       png_options.num_iterations *= 4;
@@ -50,7 +55,8 @@ int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("iterations")) {
     option_value = options.Get("iterations");
     if (!option_value.IsNumber()) {
-      return 5;
+      error = Napi::TypeError::New(env, "Wrong type for option 'iterations'");
+      return 1;
     }
     int num = option_value.As<Napi::Number>().Int32Value();
 
@@ -66,7 +72,8 @@ int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   if (options.Has("keepChunks")) {
     option_value = options.Get("keepChunks");
     if (!option_value.IsArray()) {
-      return 6;
+      error = Napi::TypeError::New(env, "Wrong type for option 'keepChunks'");
+      return 1;
     }
     const Napi::Array inputArray = option_value.As<Napi::Array>();
     const uint32_t length = inputArray.Length();
@@ -77,7 +84,9 @@ int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
       for (uint32_t i = 0; i < length; ++i) {
         const Napi::Value val = inputArray[i];
         if (!val.IsString()) {
-          return 6;
+          error =
+              Napi::TypeError::New(env, "Wrong type for option 'keepChunks'");
+          return 1;
         }
         png_options.keepchunks.push_back(val.As<Napi::String>().Utf8Value());
       }
@@ -85,25 +94,6 @@ int parseOptions(const Napi::Object& options, ZopfliPNGOptions& png_options) {
   }
 
   return 0;
-}
-
-const char* parse_option_error_text(const unsigned code) {
-  switch (code) {
-    case 0:
-      return "no error, everything went ok";
-    // 1 is reserved for future use
-    case 2:
-      return "Wrong type for option 'lossyTransparent'";
-    case 3:
-      return "Wrong type for option 'lossy8bit'";
-    case 4:
-      return "Wrong type for option 'more'";
-    case 5:
-      return "Wrong type for option 'iterations'";
-    case 6:
-      return "Wrong type for option 'keepChunks'";
-  }
-  return "unknown error code";
 }
 
 int check_png_encoding(const std::vector<unsigned char> inputPng,
@@ -144,6 +134,7 @@ int check_png_encoding(const std::vector<unsigned char> inputPng,
 Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(
     const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
+  Napi::Error errorValue;
   int error = 0;
 
   if (info.Length() < 1 || !info[0].IsBuffer()) {
@@ -158,10 +149,9 @@ Napi::Buffer<unsigned char> OptimzeZopfliPNGSync(
           Napi::TypeError::New(env, "options must be an object"));
     }
     Napi::Object options = info[1].ToObject();
-    error = parseOptions(options, png_options);
+    error = parseOptions(options, png_options, env, errorValue);
     if (error) {
-      NAPI_THROW_EMPTY_BUFFER(
-          Napi::TypeError::New(env, parse_option_error_text(error)));
+      NAPI_THROW_EMPTY_BUFFER(errorValue);
     }
   }
 
@@ -281,6 +271,7 @@ class PngOptimizeAsyncWorker : public Napi::AsyncWorker {
 
 Napi::Promise OptimzeZopfliPNG(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
+  Napi::Error errorValue;
 
   if (info.Length() < 1 || !info[0].IsBuffer()) {
     NAPI_REJECT(Napi::TypeError::New(env, "input must be a buffer"), env);
@@ -292,10 +283,9 @@ Napi::Promise OptimzeZopfliPNG(const Napi::CallbackInfo& info) {
       NAPI_REJECT(Napi::TypeError::New(env, "options must be an object"), env);
     }
     Napi::Object options = info[1].ToObject();
-    int error = parseOptions(options, png_options);
+    int error = parseOptions(options, png_options, env, errorValue);
     if (error) {
-      NAPI_REJECT(Napi::TypeError::New(env, parse_option_error_text(error)),
-                  env);
+      NAPI_REJECT(errorValue, env);
     }
   }
 
