@@ -37,7 +37,7 @@ jobs:
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
     - name: Use Node.js 16
-      uses: actions/setup-node@v3.7.0
+      uses: actions/setup-node@v4.0.3
       with:
         node-version: 16
 
