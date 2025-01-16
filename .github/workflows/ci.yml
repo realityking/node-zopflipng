@@ -58,10 +58,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3.5.3
-      - name: Use Node.js 16
+      - name: Use Node.js 22
         uses: actions/setup-node@v3.7.0
         with:
-          node-version: 16
+          node-version: 22
       - run: npm install --no-audit --ignore-scripts --no-fund
       - run: npm run lint
 

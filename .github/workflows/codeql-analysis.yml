@@ -36,10 +36,10 @@ jobs:
         # Prefix the list here with "+" to use these queries and those in the config file.
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
-    - name: Use Node.js 16
+    - name: Use Node.js 22
       uses: actions/setup-node@v3.7.0
       with:
-        node-version: 16
+        node-version: 22
 
     - run: npm install
 
