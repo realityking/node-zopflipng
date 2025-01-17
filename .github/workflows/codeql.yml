@@ -1,0 +1,56 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '17 20 * * 0'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      packages: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: c-cpp
+          build-mode: manual
+        - language: javascript-typescript
+          build-mode: none
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4.2.2
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+
+    - name: Use Node.js 22
+      if: matrix.language == 'c-cpp'
+      uses: actions/setup-node@v3.1.0
+      with:
+        node-version: 22
+
+    - run: npm install
+      if: matrix.language == 'c-cpp'
+
+    - if: matrix.language == 'c-cpp'
+      shell: bash
+      run: |
+        npm_config_build_from_source=true npm run install
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
