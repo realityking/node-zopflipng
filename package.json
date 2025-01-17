@@ -61,7 +61,7 @@
     "node-gyp": "^11.0.0",
     "prebuildify": "^5.0.1",
     "sharp": "^0.33.5",
-    "tsd": "^0.28.1"
+    "tsd": "^0.31.2"
   },
   "tsd": {
     "directory": "test"
