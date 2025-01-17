@@ -15,10 +15,14 @@ jobs:
           - windows-latest
         architecture:
           - x64
-        # also get windows-x86:
         include:
+          # also get windows-x86
           - os: windows-latest
             architecture: x86
+          # also get macos-arm64
+          - os: macos-latest
+            architecture: arm64
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
