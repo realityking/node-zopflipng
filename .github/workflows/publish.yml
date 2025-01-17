@@ -23,17 +23,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
 
-      - name: Use Node.js 22 - ${{ matrix.architecture }}
+      - name: Use Node.js 18 - ${{ matrix.architecture }}
         uses: actions/setup-node@v4.1.0
         with:
-          node-version: 22
+          node-version: 18
           architecture: ${{ matrix.architecture }}
 
       - name: Install dependencies
         run: npm install --ignore-scripts --no-fund
 
       - name: Prebuild
-        run: npm run prebuild
+        run: npm run prebuild -- -t 18.18.0
 
       - name: Upload prebuilds
         uses: actions/upload-artifact@v3
@@ -64,16 +64,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
 
-      - name: Use Node.js 22
+      # Use Node.js 18 for compatability with older gcc versions
+      - name: Use Node.js 18
         uses: actions/setup-node@v4.1.0
         with:
-          node-version: 22
+          node-version: 18
 
       - name: Install dependencies
         run: npm install --ignore-scripts
 
       - name: Prebuild
-        run: npm run prebuild
+        run: npm run prebuild -- -t 18.18.0
 
       - name: Upload prebuilds
         uses: actions/upload-artifact@v3
