@@ -1,9 +1,0 @@
-{
-  "extends": [
-    "standard",
-    "plugin:ava/recommended"
-  ],
-  "rules": {
-    "ava/no-ignored-test-files": "off"
-  }
-}
