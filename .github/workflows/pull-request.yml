@@ -1,4 +1,4 @@
-name: "Pull request automtion"
+name: "Pull request automation"
 
 on:
   pull_request_target:
@@ -6,6 +6,9 @@ on:
       - opened
       - edited
       - synchronize
+
+permissions:
+  pull-requests: read
 
 jobs:
   main:
@@ -33,6 +36,8 @@ jobs:
   auto-review:
     name: Automatically approve certain pull requests
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Approve dependabot's pull requests
         if: github.actor == 'dependabot[bot]'
