@@ -61,10 +61,15 @@ jobs:
     container:
       image: ghcr.io/prebuild/${{ matrix.image }}
       options: --user root
+
     steps:
       - name: Install git
         if: matrix.image == 'almalinux-devtoolset11'
         run: microdnf install -y git
+
+      - name: Set PREBUILD_LIBC env var for musl builds
+        if: matrix.image == 'alpine' || matrix.image == 'linux-arm64-musl'
+        run: echo "PREBUILD_LIBC=musl" >> $GITHUB_ENV
 
       - name: Checkout code
         uses: actions/checkout@v4.2.2
