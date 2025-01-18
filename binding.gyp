@@ -39,7 +39,7 @@
         '-fno-exceptions',
         '-Wextra',
         '-Wall',
-        '-std=c++11',
+        '-std=c++17',
         '-pedantic',
         '-O3',
         '-flto',
@@ -66,7 +66,7 @@
           '-fno-exceptions',
           '-Wextra',
           '-Wall',
-          '-std=c++11',
+          '-std=c++17',
           '-pedantic',
           '-O3',
           '-flto'
