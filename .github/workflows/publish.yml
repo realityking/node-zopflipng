@@ -40,7 +40,7 @@ jobs:
         run: npm run prebuild -- -t 18.18.0
 
       - name: Upload prebuilds
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: prebuild-${{ runner.os }}-${{ matrix.architecture }}
           path: prebuilds
@@ -87,7 +87,7 @@ jobs:
         run: npm run prebuild -- -t 18.18.0
 
       - name: Upload prebuilds
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: prebuild-${{ matrix.image }}
           path: prebuilds
@@ -99,13 +99,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download prebuilt binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Move binaries to one folder
         run: mkdir prebuilds && cp -rl ./prebuild-*/* ./prebuilds/
 
       - name: Upload prebuilds
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: prebuilds
           path: prebuilds
@@ -125,7 +125,7 @@ jobs:
           node-version: 22
 
       - name: Download prebuilt binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: prebuilds
           path: prebuilds
