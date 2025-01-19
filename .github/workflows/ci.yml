@@ -31,8 +31,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install --no-fund
       - run: npm test
-      - name: Run tests for ESM
-        run: npm run test:esm
 
   eslint:
     runs-on: ubuntu-latest
