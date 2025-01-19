@@ -86,6 +86,7 @@
       },
       "defines": [
         "NAPI_DISABLE_CPP_EXCEPTIONS",
+        "NODE_ADDON_API_DISABLE_DEPRECATED",
         "NAPI_VERSION=3",
         "NDEBUG"
       ],
