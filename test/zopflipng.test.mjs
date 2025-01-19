@@ -9,7 +9,7 @@ import { optimizeZopfliPng, optimizeZopfliPngSync } from 'node-zopflipng'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-test('sync: optimize a PNG', async t => {
+test('esm - sync: optimize a PNG', async t => {
   const buf = await readFile(path.join(__dirname, 'fixtures/test.png'))
   const data = optimizeZopfliPngSync(buf)
 
@@ -17,7 +17,7 @@ test('sync: optimize a PNG', async t => {
   t.true(isPng(data))
 })
 
-test('async: optimize a PNG', async t => {
+test('esm - async: optimize a PNG', async t => {
   const buf = await readFile(path.join(__dirname, 'fixtures/test.png'))
   const data = await optimizeZopfliPng(buf)
 

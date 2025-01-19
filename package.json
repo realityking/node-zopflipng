@@ -22,7 +22,6 @@
     "install": "node-gyp-build",
     "prebuild": "prebuildify --napi --tag-libc --tag-armv --strip",
     "lint": "eslint",
-    "test:esm": "ava --config ava.config.esm.js",
     "test": "ava && tsd"
   },
   "license": "(MIT AND Apache-2.0 AND Zlib)",
