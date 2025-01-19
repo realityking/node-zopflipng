@@ -18,14 +18,12 @@
         "src/zopfli/squeeze.c"
       ],
       'include_dirs': [
-        'src',
-        "<!@(node -p \"require('node-addon-api').include\")"
+        'src'
       ],
       'dependencies': [
-        "<!(node -p \"require('node-addon-api').gyp\")"
+        "<!(node -p \"require('node-addon-api').targets\"):node_addon_api"
       ],
       'cflags': [
-        '-fno-exceptions',
         '-Wextra',
         '-Wall',
         '-Wno-unused-function',
@@ -36,7 +34,6 @@
         '-flto',
       ],
       'cflags_cc': [
-        '-fno-exceptions',
         '-Wextra',
         '-Wall',
         '-std=c++17',
@@ -53,12 +50,8 @@
         }]
       ],
       'xcode_settings': {
-        'GCC_ENABLE_CPP_EXCEPTIONS': 'NO',
         'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',
-        'CLANG_CXX_LIBRARY': 'libc++',
-        'MACOSX_DEPLOYMENT_TARGET': '10.7',
         'OTHER_CFLAGS': [
-          '-fno-exceptions',
           '-Wextra',
           '-Wall',
           '-Wno-unused-function',
@@ -69,7 +62,6 @@
           '-flto'
         ],
         'OTHER_CPLUSPLUSFLAGS': [
-          '-fno-exceptions',
           '-Wextra',
           '-Wall',
           '-std=c++17',
@@ -81,11 +73,7 @@
           '-flto'
         ]
       },
-      'msvs_settings': {
-        'VCCLCompilerTool': { 'ExceptionHandling': 1 },
-      },
       "defines": [
-        "NAPI_DISABLE_CPP_EXCEPTIONS",
         "NODE_ADDON_API_DISABLE_DEPRECATED",
         "NAPI_VERSION=3",
         "NDEBUG"
