@@ -47,8 +47,14 @@
       'ldflags': [
         '-flto'
       ],
+      'conditions': [
+        ['OS=="mac"', {
+          'cflags+': ['-fvisibility=hidden']
+        }]
+      ],
       'xcode_settings': {
         'GCC_ENABLE_CPP_EXCEPTIONS': 'NO',
+        'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',
         'CLANG_CXX_LIBRARY': 'libc++',
         'MACOSX_DEPLOYMENT_TARGET': '10.7',
         'OTHER_CFLAGS': [
