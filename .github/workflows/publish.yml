@@ -117,6 +117,9 @@ jobs:
     needs: assemble
     environment: npm
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -134,6 +137,6 @@ jobs:
           path: prebuilds
 
       - name: Publish on npm
-        run: npm publish  --access public
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
