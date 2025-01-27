@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Use Node.js 18 - ${{ matrix.architecture }}
-        uses: actions/setup-node@v4.1.0
+        uses: actions/setup-node@v4.2.0
         with:
           node-version: 18
           architecture: ${{ matrix.architecture }}
@@ -70,7 +70,7 @@ jobs:
 
       # Use Node.js 18 for compatability with older gcc versions
       - name: Use Node.js 18
-        uses: actions/setup-node@v4.1.0
+        uses: actions/setup-node@v4.2.0
         with:
           node-version: 18
 
@@ -117,7 +117,7 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Use Node.js 22
-        uses: actions/setup-node@v4.1.0
+        uses: actions/setup-node@v4.2.0
         with:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
