@@ -51,7 +51,7 @@
     "node-gyp-build": "^4.2.3"
   },
   "devDependencies": {
-    "@types/node": "^22.10.7",
+    "@types/node": "^24.0.3",
     "ava": "^6.2.0",
     "eslint": "^9.18.0",
     "eslint-plugin-ava": "^15.0.1",
