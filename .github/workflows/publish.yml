@@ -116,10 +116,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
 
-      - name: Use Node.js 22
+      - name: Use Node.js 24
         uses: actions/setup-node@v5.0.0
         with:
-          node-version: 22
+          package-manager-cache: false
+          node-version: '^24.10.0'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Download prebuilt binaries
@@ -129,6 +130,4 @@ jobs:
           path: prebuilds
 
       - name: Publish on npm
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
