@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.1.0](https://github.com/realityking/node-zopflipng/compare/v3.0.0...v3.1.0) (2025-10-11)
+
+
+### Features
+
+* add provenance when publishing the npm package ([e6f19a6](https://github.com/realityking/node-zopflipng/commit/e6f19a601437739dee1c8827848706ce219b7b10))
+* use npm trusted publishing ([#416](https://github.com/realityking/node-zopflipng/issues/416)) ([4ccfaa2](https://github.com/realityking/node-zopflipng/commit/4ccfaa2b7c7323d8196511240ea2911025a2cecf))
+
 ## [3.0.0](https://github.com/realityking/node-zopflipng/compare/v2.0.0...v3.0.0) (2025-01-20)
 
 
