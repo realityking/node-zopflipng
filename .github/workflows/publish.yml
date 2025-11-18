@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
 
       - name: Use Node.js 18 - ${{ matrix.architecture }}
         uses: actions/setup-node@v6.0.0
@@ -66,7 +66,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
 
       # Use Node.js 18 for compatability with older gcc versions
       - name: Use Node.js 18
@@ -114,7 +114,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
 
       - name: Use Node.js 24
         uses: actions/setup-node@v6.0.0
